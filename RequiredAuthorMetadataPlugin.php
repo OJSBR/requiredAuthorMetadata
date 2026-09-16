@@ -144,11 +144,13 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
      * Hook Form::config::before — marks the fields the journal requires in the
      * contributor form, so that the form itself shows and checks them.
      *
-     * @param array $args [$form]
+     * The core fires this one with Hook::run(), which spreads its arguments: the
+     * form arrives as the second parameter, not inside an array. Declaring it
+     * otherwise is a TypeError that the core catches and writes to the error
+     * log, leaving the plugin silently inert.
      */
-    public function markRequiredFields(string $hookName, array $args): bool
+    public function markRequiredFields(string $hookName, mixed $form): bool
     {
-        $form = $args[0] ?? null;
         if (!$form instanceof ContributorForm) {
             return Hook::CONTINUE;
         }

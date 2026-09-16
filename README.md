@@ -69,7 +69,11 @@ Three hooks, in the order the author meets them, and no core template is replace
 
 1. `Form::config::before` → marks the `affiliations` and `biography` fields **that already
    exist** in the `ContributorForm` as required. The asterisk lands on the right label and
-   the form checks the field before sending anything. No other field is touched.
+   the form checks the field before sending anything. No other field is touched. Mind the
+   signature: the core fires this one with `Hook::run()`, which spreads its arguments, so the
+   form arrives as the second parameter — and a callback declared otherwise raises a
+   `TypeError` that the core catches and only writes to the error log, leaving the plugin
+   silently inert. The test suite fires the hook the way the core does, for that reason.
 2. `Author::validate` → refuses the save. This is the guarantee: the form is a courtesy and
    the REST endpoint is what stores the data. A save that carries no key for the field at
    all is still checked against what the contributor would be left with.
@@ -123,7 +127,7 @@ for exactly that.
   creates one and deletes it, and puts the settings back as it found them.
 
 - Both suites are run by `.github/actions/tests.sh`, so a failure in either one fails the job.
-- Verified on OJS 3.5.0.3 and OMP 3.5.0.3 (28 unit tests and 6 browser tests on each), with
+- Verified on OJS 3.5.0.3 and OMP 3.5.0.3 (29 unit tests and 7 browser tests on each), with
   the orcidManualEntry plugin enabled alongside it.
 
 Tests are kept in the repository and are not part of the release package.
@@ -212,7 +216,11 @@ Três hooks, na ordem em que o autor os encontra, sem substituir nenhum template
 
 1. `Form::config::before` → marca como obrigatórios os campos `affiliations` e `biography`
    **que já existem** no `ContributorForm`. O asterisco cai no rótulo certo e o próprio
-   formulário confere antes de enviar. Nenhum outro campo é tocado.
+   formulário confere antes de enviar. Nenhum outro campo é tocado. Atenção à assinatura: o
+   núcleo dispara esse hook com `Hook::run()`, que **espalha** os argumentos, então o
+   formulário chega como segundo parâmetro — e um callback declarado de outro jeito estoura
+   `TypeError`, que o núcleo captura e só escreve no error_log, deixando o plugin inerte e
+   calado. É por isso que a suíte dispara o hook exatamente como o núcleo dispara.
 2. `Author::validate` → recusa a gravação. É essa a garantia: o formulário é conveniência, e
    quem grava é o endpoint REST. Gravação que não manda a chave do campo também é conferida
    pelo que sobraria no contribuidor.
@@ -243,7 +251,7 @@ com autor sem os dois campos, validação do núcleo chamada, cada campo cobrado
 concluindo assim mesmo enquanto a isenção está ligada e preso à regra quando ela é desligada —
 e, no navegador, prova a recusa do contribuidor pelos mesmos endpoints REST do formulário e o
 bloqueio pela própria requisição do botão *Enviar*. Verificado no OJS 3.5.0.3 e no OMP
-3.5.0.3: 28 testes de unidade e 6 de navegador em cada, com o orcidManualEntry ligado junto.
+3.5.0.3: 29 testes de unidade e 7 de navegador em cada, com o orcidManualEntry ligado junto.
 
 Os testes ficam no repositório e não fazem parte do pacote da release.
 

@@ -20,8 +20,12 @@ use APP\core\PageRouter;
 use APP\plugins\generic\requiredAuthorMetadata\RequiredAuthorMetadataPlugin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PKP\affiliation\Affiliation;
+use PKP\components\forms\FieldText;
+use PKP\components\forms\publication\ContributorForm;
+use PKP\plugins\Hook;
 use PKP\security\Role;
 use PKP\tests\PKPTestCase;
+use ReflectionClass;
 
 #[CoversClass(RequiredAuthorMetadataPlugin::class)]
 class RequiredFieldsTest extends PKPTestCase
@@ -147,6 +151,69 @@ class RequiredFieldsTest extends PKPTestCase
         // The exemption is read once and applied to all three rules.
         $this->assertStringContainsString('$this->isExempt($contextId)', $source);
         $this->assertSame(3, substr_count($source, '$this->isExempt('), 'each of the three rules has to honour it');
+    }
+
+    /**
+     * A contributor form with the fields that matter, built without touching a
+     * submission: what is under test is the marking, not the core form.
+     */
+    protected function contributorForm(): ContributorForm
+    {
+        $form = (new ReflectionClass(ContributorForm::class))->newInstanceWithoutConstructor();
+        $form->fields = [
+            new FieldText('givenName', []),
+            new FieldText('biography', []),
+            new FieldText('affiliations', []),
+            new FieldText('url', []),
+        ];
+
+        return $form;
+    }
+
+    protected function requiredIn(ContributorForm $form): array
+    {
+        $required = [];
+        foreach ($form->fields as $field) {
+            if ($field->isRequired) {
+                $required[] = $field->name;
+            }
+        }
+
+        return $required;
+    }
+
+    public function testTheFormIsMarkedTheWayTheCoreCallsTheHook(): void
+    {
+        // Form::config::before is fired with Hook::run(), which spreads its
+        // arguments — the form is the second parameter, not an array. A
+        // callback declared otherwise raises a TypeError that the core catches
+        // and writes to the error log, and the plugin is silently inert. So the
+        // hook is exercised here exactly as the core fires it.
+        $plugin = $this->plugin(['requireAffiliation' => true, 'requireBiography' => true, 'editorsExempt' => false]);
+        Hook::add('Form::config::before', $plugin->markRequiredFields(...));
+
+        try {
+            $form = $this->contributorForm();
+            Hook::run('Form::config::before', [$form]);
+
+            $this->assertSame(['biography', 'affiliations'], $this->requiredIn($form), 'both fields have to be marked in the form itself');
+
+            // Only what the journal asked for, and nothing else.
+            $onlyOne = $this->plugin(['requireAffiliation' => true, 'editorsExempt' => false]);
+            Hook::clear('Form::config::before');
+            Hook::add('Form::config::before', $onlyOne->markRequiredFields(...));
+            $form = $this->contributorForm();
+            Hook::run('Form::config::before', [$form]);
+            $this->assertSame(['affiliations'], $this->requiredIn($form));
+
+            // Any other form of the application goes by untouched.
+            $other = (new ReflectionClass(\PKP\components\forms\FormComponent::class))->newInstanceWithoutConstructor();
+            $other->fields = [new FieldText('affiliations', [])];
+            Hook::run('Form::config::before', [$other]);
+            $this->assertFalse($other->fields[0]->isRequired, 'a form that is not the contributor form is left alone');
+        } finally {
+            Hook::clear('Form::config::before');
+        }
     }
 
     public function testTheRulesAreHungOnTheHooksOfTheCore(): void

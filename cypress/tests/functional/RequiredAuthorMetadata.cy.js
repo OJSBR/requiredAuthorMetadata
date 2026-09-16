@@ -191,6 +191,22 @@ describe('Required author metadata plugin', function() {
 		});
 	};
 
+	// A submission of its own, still incomplete: the wizard page only exists
+	// while it is. Deleted in after().
+	const extra = [];
+	const newSubmission = () => cy.window({log: false}).then((win) => {
+		const locale = win.pkp.context.primaryLocale;
+		const create = (body) => send(pageUrl('api/v1/submissions'), 'POST', body);
+		return create({locale}).then((answer) => answer.status === 200
+			? answer
+			: api(pageUrl('api/v1/sections?count=1')).then((sections) => create({locale, sectionId: sections.items[0].id})))
+			.then((answer) => {
+				expect(answer.status, JSON.stringify(answer.body)).to.eq(200);
+				extra.push(answer.body.id);
+				return cy.wrap({id: answer.body.id, publicationId: answer.body.currentPublicationId, locale}, {log: false});
+			});
+	});
+
 	const workPublication = (submission) => pageUrl('api/v1/submissions/' + submission.id + '/publications/' + submission.publicationId);
 
 	// The user group a contributor is filed under: the one the submission already
@@ -289,6 +305,32 @@ describe('Required author metadata plugin', function() {
 		});
 	});
 
+	it('Marks the fields the journal requires in the contributor form itself', function() {
+		login(adminUser, adminPassword);
+		cy.then(() => saveSettings({requireAffiliation: true, requireBiography: true}));
+
+		newSubmission().then((submission) => {
+			// The form the author fills in is built on the server: the fields it
+			// already has are marked, and no other field is touched. Only a
+			// submission still in the wizard has that page.
+			request(pageUrl('submission') + '?id=' + submission.id).then((response) => {
+				const config = response.body.replace(/&quot;/g, '"');
+				// Each field of the form, read from its own slice of the config:
+				// a neighbour that the core requires must not be mistaken for it.
+				const marked = (field) => {
+					const start = config.indexOf('"name":"' + field + '"');
+					expect(start, 'the contributor form carries the ' + field + ' field').to.be.greaterThan(-1);
+					const next = config.indexOf('"name":"', start + 1);
+					return /"isRequired":true/.test(config.slice(start, next === -1 ? undefined : next));
+				};
+
+				expect(marked('affiliations'), 'the affiliation is marked as required').to.eq(true);
+				expect(marked('biography'), 'the biography is marked as required').to.eq(true);
+				expect(marked('url'), 'a field the journal said nothing about is left alone').to.eq(false);
+			});
+		});
+	});
+
 	it('Leaves the contributor alone where the journal asks for nothing', function() {
 		login(adminUser, adminPassword);
 		cy.then(() => saveSettings({}));
@@ -367,7 +409,7 @@ describe('Required author metadata plugin', function() {
 	});
 
 	after(function() {
-		if (created.length || settingsWere || (work && work.created)) {
+		if (created.length || settingsWere || extra.length || (work && work.created)) {
 			login(adminUser, adminPassword);
 			// Nothing is required while the leftovers are removed.
 			if (settingsAction) {
@@ -375,8 +417,9 @@ describe('Required author metadata plugin', function() {
 			}
 			created.forEach(({base, id}) => withToken('DELETE').then((options) => api(base + '/contributors/' + id, options)));
 			if (work && work.created) {
-				withToken('DELETE').then((options) => api(pageUrl('api/v1/submissions/' + work.id), options));
+				extra.push(work.id);
 			}
+			extra.forEach((id) => withToken('DELETE').then((options) => api(pageUrl('api/v1/submissions/' + id), options)));
 			if (settingsWere) {
 				cy.then(() => saveSettings(settingsWere));
 			}
