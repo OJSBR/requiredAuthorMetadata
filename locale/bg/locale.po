@@ -1,0 +1,64 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: OJSBR\n"
+"Language-Team: OJSBR\n"
+"Language: bg\n"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.displayName"
+msgstr "Required author metadata"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Lets the journal require the affiliation and the biography of every contributor, each one on its own, and refuse to complete a submission while either is missing. Journal managers and section editors can be left out of it."
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
+msgstr "Choose what this journal requires of the authors and co-authors of a submission. Nothing is required until a box is ticked here."
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.fields"
+msgstr "Fields required of every contributor"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"
+msgstr "Affiliation (institution)"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireBiography"
+msgstr "Biography summary"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement"
+msgstr "Where the requirement is enforced"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement.description"
+msgstr "The fields above are asked for whenever a contributor is saved. Here you decide whether an incomplete submission can still be completed, and who is left out of the rule."
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireOnSubmit"
+msgstr "Do not let the submission be completed while a contributor is missing one of them"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.settings.editorsExempt"
+msgstr "Journal managers and section editors are exempt"
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.required"
+msgstr "The affiliation is required for every contributor in this journal."
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.required"
+msgstr "The biography is required for every contributor in this journal."
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit"
+msgstr "The submission cannot be completed while the affiliation of these contributors is missing: {$names}."
+
+#, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
+msgstr "The submission cannot be completed while the biography of these contributors is missing: {$names}."

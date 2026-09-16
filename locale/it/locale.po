@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: OJSBR\n"
+"Language-Team: OJSBR\n"
+"Language: it\n"
+
+msgid "plugins.generic.requiredAuthorMetadata.displayName"
+msgstr "Metadati degli autori obbligatori"
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Consente alla rivista di richiedere l'affiliazione e la nota biografica di tutti gli autori e coautori, ciascuna separatamente, e di impedire il completamento della proposta finché ne manca una. I gestori della rivista e i redattori di sezione possono esserne esentati."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
+msgstr "Scegli che cosa questa rivista richiede agli autori e coautori di una proposta. Nulla è obbligatorio finché non viene selezionata una casella qui."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.fields"
+msgstr "Campi obbligatori per tutti gli autori"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"
+msgstr "Affiliazione (istituzione)"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireBiography"
+msgstr "Nota biografica"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement"
+msgstr "Dove si applica l'obbligo"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement.description"
+msgstr "I campi qui sopra sono richiesti ogni volta che un autore viene salvato. Qui decidi se una proposta incompleta può comunque essere completata e chi resta fuori dalla regola."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireOnSubmit"
+msgstr "Impedire il completamento della proposta finché manca a qualche autore"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.editorsExempt"
+msgstr "I gestori della rivista e i redattori di sezione sono esentati"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.required"
+msgstr "L'affiliazione è obbligatoria per tutti gli autori in questa rivista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.required"
+msgstr "La nota biografica è obbligatoria per tutti gli autori in questa rivista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit"
+msgstr "La proposta non può essere completata finché manca l'affiliazione di: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
+msgstr "La proposta non può essere completata finché manca la nota biografica di: {$names}."

@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: OJSBR\n"
+"Language-Team: OJSBR\n"
+"Language: gl\n"
+
+msgid "plugins.generic.requiredAuthorMetadata.displayName"
+msgstr "Metadatos de autoría obrigatorios"
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Permite á revista esixir a afiliación e a biografía de todos os autores e coautores, cada unha por separado, e impedir que se complete o envío mentres falte algunha. Os xestores da revista e os editores de sección poden quedar exentos."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
+msgstr "Escolla o que esta revista esixe aos autores e coautores dun envío. Non se esixe nada mentres non se marque ningunha caixa aquí."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.fields"
+msgstr "Campos obrigatorios para todos os autores"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"
+msgstr "Afiliación (institución)"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireBiography"
+msgstr "Resumo biográfico"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement"
+msgstr "Onde se aplica a esixencia"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement.description"
+msgstr "Os campos anteriores esíxense cada vez que se garda un autor. Aquí decide se un envío incompleto aínda pode completarse e quen queda fóra da regra."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireOnSubmit"
+msgstr "Impedir que se complete o envío mentres falte nalgún autor"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.editorsExempt"
+msgstr "Os xestores da revista e os editores de sección quedan exentos"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.required"
+msgstr "A afiliación é obrigatoria para todos os autores nesta revista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.required"
+msgstr "A biografía é obrigatoria para todos os autores nesta revista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit"
+msgstr "O envío non pode completarse mentres falte a afiliación de: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
+msgstr "O envío non pode completarse mentres falte a biografía de: {$names}."

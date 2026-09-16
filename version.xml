@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE version SYSTEM "../../../lib/pkp/dtd/pluginVersion.dtd">
+
+<!--
+  * version.xml
+  *
+  * Copyright (c) 2026 OJSBR (https://ojsbr.com)
+  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+  *
+  * Lets a journal require the affiliation and the biography of every
+  * contributor of a submission, each one on its own, and refuse to let the
+  * submission be completed while either is missing. Whoever runs the journal
+  * can be left out of it.
+  *
+  * Plugin version information.
+  -->
+<version>
+	<application>requiredAuthorMetadata</application>
+	<type>plugins.generic</type>
+	<release>1.0.0.0</release>
+	<date>2026-09-16</date>
+	<lazy-load>1</lazy-load>
+	<class>RequiredAuthorMetadataPlugin</class>
+</version>

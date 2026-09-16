@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: OJSBR\n"
+"Language-Team: OJSBR\n"
+"Language: fr_CA\n"
+
+msgid "plugins.generic.requiredAuthorMetadata.displayName"
+msgstr "Métadonnées d'auteur obligatoires"
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Permet à la revue d'exiger l'affiliation et la notice biographique de tous les auteurs et coauteurs, séparément, et d'empêcher l'achèvement de la soumission tant qu'il en manque une. Les directeurs de la revue et les rédacteurs de rubrique peuvent en être dispensés."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
+msgstr "Choisissez ce que cette revue exige des auteurs et coauteurs d'une soumission. Rien n'est exigé tant qu'aucune case n'est cochée ici."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.fields"
+msgstr "Champs obligatoires pour tous les auteurs"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"
+msgstr "Affiliation (institution)"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireBiography"
+msgstr "Notice biographique"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement"
+msgstr "Où l'exigence s'applique"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement.description"
+msgstr "Les champs ci-dessus sont exigés chaque fois qu'un contributeur est enregistré. Vous décidez ici si une soumission incomplète peut tout de même être achevée et qui échappe à la règle."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireOnSubmit"
+msgstr "Empêcher l'achèvement de la soumission tant qu'elle manque à un auteur"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.editorsExempt"
+msgstr "Les directeurs de la revue et les rédacteurs de rubrique sont dispensés"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.required"
+msgstr "L'affiliation est obligatoire pour tous les auteurs dans cette revue."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.required"
+msgstr "La notice biographique est obligatoire pour tous les auteurs dans cette revue."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit"
+msgstr "La soumission ne peut pas être achevée tant que l'affiliation manque pour : {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
+msgstr "La soumission ne peut pas être achevée tant que la notice biographique manque pour : {$names}."

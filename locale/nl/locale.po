@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: OJSBR\n"
+"Language-Team: OJSBR\n"
+"Language: nl\n"
+
+msgid "plugins.generic.requiredAuthorMetadata.displayName"
+msgstr "Verplichte auteursmetadata"
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Laat het tijdschrift de affiliatie en de biografie van alle auteurs en co-auteurs afzonderlijk verplicht stellen en het afronden van de inzending blokkeren zolang er een ontbreekt. Tijdschriftbeheerders en sectieredacteuren kunnen worden vrijgesteld."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
+msgstr "Kies wat dit tijdschrift van de auteurs en co-auteurs van een inzending verlangt. Er wordt niets verplicht zolang hier niets is aangevinkt."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.fields"
+msgstr "Verplichte velden voor alle auteurs"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"
+msgstr "Affiliatie (instelling)"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireBiography"
+msgstr "Biografie"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement"
+msgstr "Waar de eis geldt"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement.description"
+msgstr "De bovenstaande velden worden gevraagd telkens als een auteur wordt opgeslagen. Hier bepaalt u of een onvolledige inzending toch kan worden afgerond en wie buiten de regel valt."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireOnSubmit"
+msgstr "De inzending niet laten afronden zolang het bij een auteur ontbreekt"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.editorsExempt"
+msgstr "Tijdschriftbeheerders en sectieredacteuren zijn vrijgesteld"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.required"
+msgstr "De affiliatie is voor alle auteurs in dit tijdschrift verplicht."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.required"
+msgstr "De biografie is voor alle auteurs in dit tijdschrift verplicht."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit"
+msgstr "De inzending kan niet worden afgerond zolang de affiliatie ontbreekt bij: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
+msgstr "De inzending kan niet worden afgerond zolang de biografie ontbreekt bij: {$names}."

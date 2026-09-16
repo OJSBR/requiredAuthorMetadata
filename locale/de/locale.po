@@ -1,0 +1,50 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: OJSBR\n"
+"Language-Team: OJSBR\n"
+"Language: de\n"
+
+msgid "plugins.generic.requiredAuthorMetadata.displayName"
+msgstr "Pflichtangaben zu Beitragenden"
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Ermöglicht es der Zeitschrift, die Institution und die biografische Notiz aller Beitragenden jeweils einzeln zu verlangen und den Abschluss der Einreichung zu verhindern, solange eine davon fehlt. Zeitschriftenverwalter/innen und Rubrikredakteur/innen können davon ausgenommen werden."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
+msgstr "Legen Sie fest, was diese Zeitschrift von den Beitragenden einer Einreichung verlangt. Solange hier nichts angekreuzt ist, wird nichts verlangt."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.fields"
+msgstr "Pflichtfelder für alle Beitragenden"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"
+msgstr "Institution"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireBiography"
+msgstr "Biografische Notiz"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement"
+msgstr "Wo die Pflicht greift"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.area.enforcement.description"
+msgstr "Die obigen Felder werden bei jedem Speichern einer beitragenden Person verlangt. Hier entscheiden Sie, ob eine unvollständige Einreichung trotzdem abgeschlossen werden kann und wer von der Regel ausgenommen ist."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireOnSubmit"
+msgstr "Abschluss der Einreichung verhindern, solange die Angabe bei einer Person fehlt"
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.editorsExempt"
+msgstr "Zeitschriftenverwalter/innen und Rubrikredakteur/innen sind ausgenommen"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.required"
+msgstr "Die Institution ist in dieser Zeitschrift für alle Beitragenden erforderlich."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.required"
+msgstr "Die biografische Notiz ist in dieser Zeitschrift für alle Beitragenden erforderlich."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit"
+msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die Institution fehlt bei: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
+msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die biografische Notiz fehlt bei: {$names}."
