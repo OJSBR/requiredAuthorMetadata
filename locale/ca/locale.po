@@ -10,8 +10,6 @@ msgstr ""
 msgid "plugins.generic.requiredAuthorMetadata.displayName"
 msgstr "Metadades d'autoria obligatòries"
 
-msgid "plugins.generic.requiredAuthorMetadata.description"
-msgstr "Permet a la revista exigir l'afiliació i la biografia de tots els autors i coautors, cadascuna per separat, i impedir que es completi la tramesa mentre en falti alguna. Els gestors de la revista i els editors de secció poden quedar-ne exempts."
 
 msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
 msgstr "Trieu què exigeix aquesta revista als autors i coautors d'una tramesa. No s'exigeix res mentre no es marqui cap casella aquí."
@@ -48,3 +46,15 @@ msgstr "La tramesa no es pot completar mentre falti l'afiliació de: {$names}."
 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "La tramesa no es pot completar mentre falti la biografia de: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
+msgstr "Cognoms"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.required"
+msgstr "Els cognoms són obligatoris per a tots els autors en aquesta revista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit"
+msgstr "La tramesa no es pot completar mentre falten els cognoms de: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Permet a la revista exigir els cognoms, l'afiliació i la biografia de tots els autors i coautors, cadascun per separat, i impedir que es completi la tramesa mentre en falti algun. Els gestors de la revista i els editors de secció poden quedar-ne exempts."

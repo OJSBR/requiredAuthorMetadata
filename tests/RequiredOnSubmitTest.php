@@ -164,7 +164,7 @@ class RequiredOnSubmitTest extends PKPTestCase
      * A submission waiting for its last step, with one contributor who has
      * neither an affiliation nor a biography.
      */
-    private function submissionAwaitingSubmit(string $givenName = 'Ana'): Submission
+    private function submissionAwaitingSubmit(string $givenName = 'Ana', ?string $familyName = 'Contributor'): Submission
     {
         $context = Application::getContextDAO()->getById(self::CONTEXT_ID);
         $userGroup = UserGroup::withContextIds([self::CONTEXT_ID])->withRoleIds([Role::ROLE_ID_AUTHOR])->first();
@@ -192,7 +192,7 @@ class RequiredOnSubmitTest extends PKPTestCase
         Repo::author()->add(Repo::author()->newDataObject([
             'publicationId' => $submission->getCurrentPublication()->getId(),
             'givenName' => ['en' => $givenName],
-            'familyName' => ['en' => 'Contributor'],
+            'familyName' => ['en' => (string) $familyName],
             'userGroupId' => $userGroup->id,
             'seq' => 0,
             'includeInBrowse' => true,
@@ -260,16 +260,36 @@ class RequiredOnSubmitTest extends PKPTestCase
         $this->assertContains($this->message('biography', 'Bruno Contributor'), $left);
     }
 
+    public function testASubmissionIsRefusedWhileAContributorHasNoFamilyName(): void
+    {
+        $this->set('requireFamilyName', true);
+        $this->set('requireAffiliation', false);
+        $this->set('requireBiography', false);
+        $this->set('requireOnSubmit', true);
+        $submission = $this->submissionAwaitingSubmit('Fabio', null);
+
+        $errors = $this->contributorErrors($submission);
+
+        // With no family name, the contributor is known by the given name alone.
+        $this->assertContains($this->message('familyName', 'Fabio'), $errors, implode(' | ', $errors));
+
+        // And a contributor who has one is not named.
+        $withName = $this->submissionAwaitingSubmit('Gabriela');
+        $this->assertNotContains($this->message('familyName', 'Gabriela Contributor'), $this->contributorErrors($withName));
+    }
+
     public function testNothingIsRequiredWhileTheJournalDidNotAskForIt(): void
     {
+        $this->set('requireFamilyName', true);
         $this->set('requireAffiliation', true);
         $this->set('requireBiography', true);
         $this->set('requireOnSubmit', false);
-        $submission = $this->submissionAwaitingSubmit('Carla');
+        $submission = $this->submissionAwaitingSubmit('Carla', null);
 
         $errors = $this->contributorErrors($submission);
-        $this->assertNotContains($this->message('affiliation', 'Carla Contributor'), $errors, 'the gate only closes where the journal closed it');
-        $this->assertNotContains($this->message('biography', 'Carla Contributor'), $errors);
+        $this->assertNotContains($this->message('affiliation', 'Carla'), $errors, 'the gate only closes where the journal closed it');
+        $this->assertNotContains($this->message('biography', 'Carla'), $errors);
+        $this->assertNotContains($this->message('familyName', 'Carla'), $errors);
     }
 
     public function testTheEditorKeepsTheAutonomyToCompleteIt(): void

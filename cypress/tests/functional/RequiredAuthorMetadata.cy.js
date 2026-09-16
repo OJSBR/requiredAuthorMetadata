@@ -159,7 +159,7 @@ describe('Required author metadata plugin', function() {
 
 	// ---- the settings of this plugin ----
 
-	const SETTINGS = ['requireAffiliation', 'requireBiography', 'requireOnSubmit', 'editorsExempt'];
+	const SETTINGS = ['requireFamilyName', 'requireAffiliation', 'requireBiography', 'requireOnSubmit', 'editorsExempt'];
 	const settingsForm = 'form[id="requiredAuthorMetadataSettingsForm"]';
 	// The URL the settings form posts to, read from the form itself, and what the
 	// journal had before this run.
@@ -297,23 +297,24 @@ describe('Required author metadata plugin', function() {
 
 	it('Keeps what the journal ticked', function() {
 		login(adminUser, adminPassword);
-		cy.then(() => saveSettings({requireAffiliation: true, requireBiography: true}));
+		cy.then(() => saveSettings({requireFamilyName: true, requireAffiliation: true, requireBiography: true}));
 		fetchSettings().then((html) => {
-			expect(checkedIn(html), 'saved through the form itself').to.deep.eq(['requireAffiliation', 'requireBiography']);
+			expect(checkedIn(html), 'saved through the form itself').to.deep.eq(['requireFamilyName', 'requireAffiliation', 'requireBiography']);
 		});
 	});
 
 	it('Refuses a contributor with no affiliation and one with no biography', function() {
 		login(adminUser, adminPassword);
 		// The exemption is out of the way here: this is about the rule itself.
-		cy.then(() => saveSettings({requireAffiliation: true, requireBiography: true}));
+		cy.then(() => saveSettings({requireFamilyName: true, requireAffiliation: true, requireBiography: true}));
 
 		workSubmission().then((submission) => {
 			const base = workPublication(submission);
 			api(base).then((publication) => authorGroupId(publication, submission).then((userGroupId) => {
-				// Neither field sent: the endpoint has to hold both against it.
-				saveContributor(base, contributor(submission, userGroupId, {})).then(keep(base)).then((refused) => {
+				// Nothing sent: the endpoint has to hold each of them against it.
+				saveContributor(base, contributor(submission, userGroupId, {familyName: {[submission.locale]: ''}})).then(keep(base)).then((refused) => {
 					expect(refused.status, JSON.stringify(refused.body)).to.eq(400);
+					expect(refused.body, 'the family name is asked for').to.have.property('familyName');
 					expect(refused.body, 'the affiliation is asked for').to.have.property('affiliations');
 					expect(refused.body, 'and so is the biography').to.have.property('biography');
 					expect(JSON.stringify(refused.body)).to.not.contain('##');
@@ -341,35 +342,33 @@ describe('Required author metadata plugin', function() {
 		});
 	});
 
-	it('Marks the fields the journal requires in the contributor form itself', function() {
+	it('Marks each required field on the label of the language of the submission', function() {
 		login(adminUser, adminPassword);
-		cy.then(() => saveSettings({requireAffiliation: true, requireBiography: true}));
+		cy.then(() => saveSettings({requireFamilyName: true, requireAffiliation: true, requireBiography: true}));
 
 		newSubmission().then((submission) => {
-			// The form the author fills in is built on the server: the fields it
-			// already has are marked, and no other field is touched. Only a
-			// submission still in the wizard has that page.
+			// The page of a submission still in the wizard carries the contributor
+			// form and, with it, the mark this plugin draws.
 			request(pageUrl('submission') + '?id=' + submission.id).then((response) => {
+				const control = (field) => 'label[for="contributor-' + field + '-control-' + submission.locale.replace(/[^A-Za-z0-9_]/g, '_') + '"]';
+
+				expect(response.body, 'the affiliation label is marked').to.contain('#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel::after');
+				expect(response.body, 'the family name is marked in the language of the submission').to.contain(control('familyName'));
+				expect(response.body, 'and so is the biography').to.contain(control('biography'));
+				expect(response.body, 'in the colour the application uses').to.contain('color: #d00a6c');
+
+				// And no field is made required for the browser, which would ask
+				// for it in every language of the journal.
 				const config = response.body.replace(/&quot;/g, '"');
-				// Each field of the form, read from its own slice of the config:
-				// a neighbour that the core requires must not be mistaken for it.
-				const marked = (field) => {
+				['familyName', 'biography', 'affiliations'].forEach((field) => {
 					const start = config.indexOf('"name":"' + field + '"');
 					expect(start, 'the contributor form carries the ' + field + ' field').to.be.greaterThan(-1);
 					const next = config.indexOf('"name":"', start + 1);
-					return /"isRequired":true/.test(config.slice(start, next === -1 ? undefined : next));
-				};
-
-				expect(marked('affiliations'), 'the affiliation is marked as required').to.eq(true);
-				expect(marked('biography'), 'the biography is marked as required').to.eq(true);
-				expect(marked('url'), 'a field the journal said nothing about is left alone').to.eq(false);
-
-				// The affiliations component of this version draws its own heading
-				// and ignores what the form says, so the required mark is put on
-				// that one label by a style of its own.
-				expect(response.body, 'the affiliation label carries the required mark')
-					.to.contain('#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel::after');
-				expect(response.body).to.contain('color: #d00a6c');
+					expect(
+						/"isRequired":true/.test(config.slice(start, next === -1 ? undefined : next)),
+						field + ' is not made required in the form itself'
+					).to.eq(false);
+				});
 			});
 		});
 	});

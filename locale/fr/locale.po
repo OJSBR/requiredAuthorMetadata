@@ -10,8 +10,6 @@ msgstr ""
 msgid "plugins.generic.requiredAuthorMetadata.displayName"
 msgstr "Métadonnées d'auteur obligatoires"
 
-msgid "plugins.generic.requiredAuthorMetadata.description"
-msgstr "Permet à la revue d'exiger l'affiliation et la notice biographique de tous les auteurs et coauteurs, séparément, et d'empêcher l'achèvement de la soumission tant qu'il en manque une. Les directeurs de la revue et les rédacteurs de rubrique peuvent en être dispensés."
 
 msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
 msgstr "Choisissez ce que cette revue exige des auteurs et coauteurs d'une soumission. Rien n'est exigé tant qu'aucune case n'est cochée ici."
@@ -48,3 +46,15 @@ msgstr "La soumission ne peut pas être achevée tant que l'affiliation manque p
 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "La soumission ne peut pas être achevée tant que la notice biographique manque pour : {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
+msgstr "Nom de famille"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.required"
+msgstr "Le nom de famille est obligatoire pour tous les auteurs dans cette revue."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit"
+msgstr "La soumission ne peut pas être achevée tant que le nom de famille manque pour : {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Permet à la revue d'exiger le nom de famille, l'affiliation et la notice biographique de tous les auteurs et coauteurs, séparément, et d'empêcher l'achèvement de la soumission tant qu'il en manque un. Les directeurs de la revue et les rédacteurs de rubrique peuvent en être dispensés."

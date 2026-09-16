@@ -20,12 +20,8 @@ use APP\core\PageRouter;
 use APP\plugins\generic\requiredAuthorMetadata\RequiredAuthorMetadataPlugin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PKP\affiliation\Affiliation;
-use PKP\components\forms\FieldText;
-use PKP\components\forms\publication\ContributorForm;
-use PKP\plugins\Hook;
 use PKP\security\Role;
 use PKP\tests\PKPTestCase;
-use ReflectionClass;
 
 #[CoversClass(RequiredAuthorMetadataPlugin::class)]
 class RequiredFieldsTest extends PKPTestCase
@@ -71,6 +67,7 @@ class RequiredFieldsTest extends PKPTestCase
 
         // A journal that enabled the plugin and chose nothing requires nothing —
         // and whoever runs the journal is left out of it from the start.
+        $this->assertFalse($defaults['requireFamilyName']);
         $this->assertFalse($defaults['requireAffiliation']);
         $this->assertFalse($defaults['requireBiography']);
         $this->assertFalse($defaults['requireOnSubmit']);
@@ -113,9 +110,9 @@ class RequiredFieldsTest extends PKPTestCase
         $this->assertFalse(RequiredAuthorMetadataPlugin::affiliationsMissing([$identified]));
     }
 
-    public function testAnEmptyBiographyIsRecognizedEvenWhenTheEditorLeftMarkupBehind(): void
+    public function testAnEmptyTextIsRecognizedEvenWhenTheEditorLeftMarkupBehind(): void
     {
-        $missing = RequiredAuthorMetadataPlugin::biographyMissing(...);
+        $missing = RequiredAuthorMetadataPlugin::textMissing(...);
 
         $this->assertTrue($missing(null, 'en'));
         $this->assertTrue($missing([], 'en'));
@@ -128,6 +125,33 @@ class RequiredFieldsTest extends PKPTestCase
         // The language of the submission is what counts, and no other.
         $this->assertTrue($missing(['pt_BR' => '<p>Pesquisadora.</p>'], 'en'));
         $this->assertFalse($missing(['pt_BR' => '<p>Pesquisadora.</p>'], 'pt_BR'));
+
+        // The same rule reads the family name, which is one text per language too.
+        $this->assertTrue($missing(['pt_BR' => '   '], 'pt_BR'), 'a name of spaces is no name');
+        $this->assertFalse($missing(['pt_BR' => 'Silva'], 'pt_BR'));
+        $this->assertTrue($missing(['en' => 'Silva'], 'pt_BR'), 'what counts is the language of the submission');
+    }
+
+    public function testTheFieldsTheJournalCanRequire(): void
+    {
+        // In the order the contributor form shows them, each one read from its
+        // own setting.
+        $this->assertSame(
+            ['familyName' => 'familyName', 'affiliation' => 'affiliations', 'biography' => 'biography'],
+            RequiredAuthorMetadataPlugin::FIELDS
+        );
+        // Of those, the ones that are one text per language.
+        $this->assertSame(
+            ['familyName' => 'familyName', 'biography' => 'biography'],
+            RequiredAuthorMetadataPlugin::TEXT_FIELDS
+        );
+        foreach (array_keys(RequiredAuthorMetadataPlugin::FIELDS) as $setting) {
+            $this->assertArrayHasKey(
+                'require' . ucfirst($setting),
+                RequiredAuthorMetadataPlugin::DEFAULTS,
+                'every field the plugin can require has a setting of its own'
+            );
+        }
     }
 
     public function testWhoIsLeftOutOfTheRules(): void
@@ -148,81 +172,47 @@ class RequiredFieldsTest extends PKPTestCase
         // And there is nobody to exempt outside a journal.
         $this->assertFalse($this->plugin(['editorsExempt' => true])->isExempt(null));
 
-        // Every place the plugin acts honours the exemption: the two marks in the
-        // form, the refusal to save and the gate at the end of the submission.
+        // Every place the plugin acts honours the exemption: the mark on the
+        // labels, the refusal to save and the gate at the end of the submission.
         $this->assertStringContainsString('$this->isExempt($contextId)', $source);
-        $this->assertSame(4, substr_count($source, '$this->isExempt('), 'each place the plugin acts has to honour it');
+        $this->assertSame(3, substr_count($source, '$this->isExempt('), 'each place the plugin acts has to honour it');
     }
 
-    /**
-     * A contributor form with the fields that matter, built without touching a
-     * submission: what is under test is the marking, not the core form.
-     */
-    protected function contributorForm(): ContributorForm
+    public function testTheFormIsLeftAsTheCoreBuiltIt(): void
     {
-        $form = (new ReflectionClass(ContributorForm::class))->newInstanceWithoutConstructor();
-        $form->fields = [
-            new FieldText('givenName', []),
-            new FieldText('biography', []),
-            new FieldText('affiliations', []),
-            new FieldText('url', []),
-        ];
+        $source = (string) file_get_contents(dirname(__DIR__) . '/RequiredAuthorMetadataPlugin.php');
 
-        return $form;
+        // Marking a multilingual field with isRequired makes the browser demand
+        // it in EVERY language of the journal, while only the language of the
+        // submission is required here. So the form is not touched at all, and
+        // the mark is drawn on the label.
+        $this->assertStringNotContainsString('isRequired = true', $source);
+        $this->assertStringNotContainsString("Hook::add('Form::config::before'", $source);
+        $this->assertStringContainsString("Hook::add('TemplateManager::display'", $source);
     }
 
-    protected function requiredIn(ContributorForm $form): array
+    public function testTheMarkGoesOnTheLabelOfTheLanguageOfTheSubmission(): void
     {
-        $required = [];
-        foreach ($form->fields as $field) {
-            if ($field->isRequired) {
-                $required[] = $field->name;
-            }
-        }
+        $source = (string) file_get_contents(dirname(__DIR__) . '/RequiredAuthorMetadataPlugin.php');
 
-        return $required;
-    }
-
-    public function testTheFormIsMarkedTheWayTheCoreCallsTheHook(): void
-    {
-        // Form::config::before is fired with Hook::run(), which spreads its
-        // arguments — the form is the second parameter, not an array. A
-        // callback declared otherwise raises a TypeError that the core catches
-        // and writes to the error log, and the plugin is silently inert. So the
-        // hook is exercised here exactly as the core fires it.
-        $plugin = $this->plugin(['requireAffiliation' => true, 'requireBiography' => true, 'editorsExempt' => false]);
-        Hook::add('Form::config::before', $plugin->markRequiredFields(...));
-
-        try {
-            $form = $this->contributorForm();
-            Hook::run('Form::config::before', [$form]);
-
-            $this->assertSame(['biography', 'affiliations'], $this->requiredIn($form), 'both fields have to be marked in the form itself');
-
-            // Only what the journal asked for, and nothing else.
-            $onlyOne = $this->plugin(['requireAffiliation' => true, 'editorsExempt' => false]);
-            Hook::clear('Form::config::before');
-            Hook::add('Form::config::before', $onlyOne->markRequiredFields(...));
-            $form = $this->contributorForm();
-            Hook::run('Form::config::before', [$form]);
-            $this->assertSame(['affiliations'], $this->requiredIn($form));
-
-            // Any other form of the application goes by untouched.
-            $other = (new ReflectionClass(\PKP\components\forms\FormComponent::class))->newInstanceWithoutConstructor();
-            $other->fields = [new FieldText('affiliations', [])];
-            Hook::run('Form::config::before', [$other]);
-            $this->assertFalse($other->fields[0]->isRequired, 'a form that is not the contributor form is left alone');
-        } finally {
-            Hook::clear('Form::config::before');
-        }
+        // The affiliations field draws its own heading and ignores the form.
+        $this->assertStringContainsString('#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel', $source);
+        // The texts are marked on the control of the language of the submission,
+        // whose id the form builds with the locale.
+        $this->assertStringContainsString('label[for="contributor-\' . $fieldName . \'-control-\' . $locale . \'"]', $source);
+        // A locale that is not a plain word is written in the id the way the
+        // form writes it (es@formal becomes es_formal).
+        $this->assertStringContainsString("preg_replace('/[^A-Za-z0-9_]/', '_', \$locale)", $source);
+        // And the colour is the application's own.
+        $this->assertStringContainsString('#d00a6c', $source);
     }
 
     public function testTheRulesAreHungOnTheHooksOfTheCore(): void
     {
         $source = (string) file_get_contents(dirname(__DIR__) . '/RequiredAuthorMetadataPlugin.php');
 
-        // The form shows it, the endpoint refuses it, the wizard is stopped by it.
-        $this->assertStringContainsString("Hook::add('Form::config::before'", $source);
+        // The label shows it, the endpoint refuses it, the wizard is stopped by it.
+        $this->assertStringContainsString("Hook::add('TemplateManager::display'", $source);
         $this->assertStringContainsString("Hook::add('Author::validate'", $source);
         $this->assertStringContainsString("Hook::add('Submission::validateSubmit'", $source);
 

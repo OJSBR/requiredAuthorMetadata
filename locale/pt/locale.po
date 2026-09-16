@@ -10,8 +10,6 @@ msgstr ""
 msgid "plugins.generic.requiredAuthorMetadata.displayName"
 msgstr "Metadados obrigatórios de autoria"
 
-msgid "plugins.generic.requiredAuthorMetadata.description"
-msgstr "Permite à revista exigir a afiliação e a biografia de todos os autores e coautores, cada uma separadamente, e impedir a conclusão da submissão enquanto faltar alguma delas. Os gestores da revista e os editores de secção podem ficar isentos."
 
 msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
 msgstr "Escolha o que esta revista exige dos autores e coautores de uma submissão. Nada é exigido enquanto nenhuma caixa for marcada aqui."
@@ -48,3 +46,15 @@ msgstr "A submissão não pode ser concluída enquanto faltar a afiliação de: 
 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "A submissão não pode ser concluída enquanto faltar a biografia de: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
+msgstr "Apelido (sobrenome)"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.required"
+msgstr "O apelido é obrigatório para todos os autores nesta revista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit"
+msgstr "A submissão não pode ser concluída enquanto faltar o apelido de: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Permite à revista exigir o apelido, a afiliação e a biografia de todos os autores e coautores, cada um separadamente, e impedir a conclusão da submissão enquanto faltar algum. Os gestores da revista e os editores de secção podem ficar isentos."

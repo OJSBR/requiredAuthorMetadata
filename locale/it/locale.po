@@ -10,8 +10,6 @@ msgstr ""
 msgid "plugins.generic.requiredAuthorMetadata.displayName"
 msgstr "Metadati degli autori obbligatori"
 
-msgid "plugins.generic.requiredAuthorMetadata.description"
-msgstr "Consente alla rivista di richiedere l'affiliazione e la nota biografica di tutti gli autori e coautori, ciascuna separatamente, e di impedire il completamento della proposta finché ne manca una. I gestori della rivista e i redattori di sezione possono esserne esentati."
 
 msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
 msgstr "Scegli che cosa questa rivista richiede agli autori e coautori di una proposta. Nulla è obbligatorio finché non viene selezionata una casella qui."
@@ -48,3 +46,15 @@ msgstr "La proposta non può essere completata finché manca l'affiliazione di: 
 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "La proposta non può essere completata finché manca la nota biografica di: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
+msgstr "Cognome"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.required"
+msgstr "Il cognome è obbligatorio per tutti gli autori in questa rivista."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit"
+msgstr "La proposta non può essere completata finché manca il cognome di: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Consente alla rivista di richiedere il cognome, l'affiliazione e la nota biografica di tutti gli autori e coautori, ciascuno separatamente, e di impedire il completamento della proposta finché ne manca uno. I gestori della rivista e i redattori di sezione possono esserne esentati."

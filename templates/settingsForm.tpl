@@ -25,6 +25,7 @@
 
 	{fbvFormArea id="requiredAuthorMetadataFields" title="plugins.generic.requiredAuthorMetadata.settings.area.fields"}
 		{fbvFormSection list=true}
+			{fbvElement type="checkbox" id="requireFamilyName" name="requireFamilyName" checked=$requireFamilyName label="plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"}
 			{fbvElement type="checkbox" id="requireAffiliation" name="requireAffiliation" checked=$requireAffiliation label="plugins.generic.requiredAuthorMetadata.settings.requireAffiliation"}
 			{fbvElement type="checkbox" id="requireBiography" name="requireBiography" checked=$requireBiography label="plugins.generic.requiredAuthorMetadata.settings.requireBiography"}
 		{/fbvFormSection}

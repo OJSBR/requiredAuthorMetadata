@@ -10,8 +10,6 @@ msgstr ""
 msgid "plugins.generic.requiredAuthorMetadata.displayName"
 msgstr "Required author metadata"
 
-msgid "plugins.generic.requiredAuthorMetadata.description"
-msgstr "Lets the journal require the affiliation and the biography of every contributor, each one on its own, and refuse to complete a submission while either is missing. Journal managers and section editors can be left out of it."
 
 msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
 msgstr "Choose what this journal requires of the authors and co-authors of a submission. Nothing is required until a box is ticked here."
@@ -48,3 +46,15 @@ msgstr "The submission cannot be completed while the affiliation of these contri
 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "The submission cannot be completed while the biography of these contributors is missing: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
+msgstr "Family name (surname)"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.required"
+msgstr "The family name is required for every contributor in this journal."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit"
+msgstr "The submission cannot be completed while the family name of these contributors is missing: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Lets the journal require the family name, the affiliation and the biography of every contributor, each one on its own, and refuse to complete a submission while any of them is missing. Journal managers and section editors can be left out of it."

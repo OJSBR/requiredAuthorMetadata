@@ -10,8 +10,6 @@ msgstr ""
 msgid "plugins.generic.requiredAuthorMetadata.displayName"
 msgstr "Pflichtangaben zu Beitragenden"
 
-msgid "plugins.generic.requiredAuthorMetadata.description"
-msgstr "Ermöglicht es der Zeitschrift, die Institution und die biografische Notiz aller Beitragenden jeweils einzeln zu verlangen und den Abschluss der Einreichung zu verhindern, solange eine davon fehlt. Zeitschriftenverwalter/innen und Rubrikredakteur/innen können davon ausgenommen werden."
 
 msgid "plugins.generic.requiredAuthorMetadata.settings.intro"
 msgstr "Legen Sie fest, was diese Zeitschrift von den Beitragenden einer Einreichung verlangt. Solange hier nichts angekreuzt ist, wird nichts verlangt."
@@ -48,3 +46,15 @@ msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die Institution
 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die biografische Notiz fehlt bei: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
+msgstr "Nachname"
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.required"
+msgstr "Der Nachname ist in dieser Zeitschrift für alle Beitragenden erforderlich."
+
+msgid "plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit"
+msgstr "Die Einreichung kann nicht abgeschlossen werden, solange der Nachname fehlt bei: {$names}."
+
+msgid "plugins.generic.requiredAuthorMetadata.description"
+msgstr "Ermöglicht es der Zeitschrift, den Nachnamen, die Institution und die biografische Notiz aller Beitragenden jeweils einzeln zu verlangen und den Abschluss der Einreichung zu verhindern, solange eines davon fehlt. Zeitschriftenverwalter/innen und Rubrikredakteur/innen können davon ausgenommen werden."

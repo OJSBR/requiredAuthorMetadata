@@ -2,14 +2,14 @@
 
 [![OJS](https://img.shields.io/badge/OJS-3.5-brightgreen)](https://pkp.sfu.ca/ojs/)
 [![OMP](https://img.shields.io/badge/OMP-3.5-brightgreen)](https://pkp.sfu.ca/omp/)
-[![Version](https://img.shields.io/badge/version-1.0.1.0-blue)](version.xml)
+[![Version](https://img.shields.io/badge/version-1.1.0.0-blue)](version.xml)
 [![License](https://img.shields.io/badge/license-GPL--3.0-lightgrey)](LICENSE)
 
-**⬇️ Install package:** [OJS / OMP 3.5](https://github.com/OJSBR/requiredAuthorMetadata/releases/download/1.0.1.0/requiredAuthorMetadata-1.0.1.0.tar.gz) — or browse all [Releases](../../releases).
+**⬇️ Install package:** [OJS / OMP 3.5](https://github.com/OJSBR/requiredAuthorMetadata/releases/download/1.1.0.0/requiredAuthorMetadata-1.1.0.0.tar.gz) — or browse all [Releases](../../releases).
 
-A generic plugin for **OJS** and **OMP** that lets a journal require the **affiliation** and
-the **biography** of every contributor of a submission — each one on its own — and refuse to
-let the submission be completed while either is missing. Whoever runs the journal can be
+A generic plugin for **OJS** and **OMP** that lets a journal require the **family name**, the
+**affiliation** and the **biography** of every contributor of a submission — each one on its
+own — and refuse to let the submission be completed while any of them is missing. Whoever runs the journal can be
 left out of it, so an editor keeps the autonomy to record and to correct a submission that
 is still incomplete.
 
@@ -20,12 +20,14 @@ is still incomplete.
 
 | Application | Branch | Plugin release |
 |-------------|--------|----------------|
-| OJS 3.5.x and OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(default)* | 1.0.1.0 |
+| OJS 3.5.x and OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(default)* | 1.1.0.0 |
 
 The same package serves both applications.
 
 ## What it does
 
+- Requires the **family name** of every author and co-author of a submission, if the journal
+  asks for it.
 - Requires the **affiliation** (institution) of every author and co-author of a submission,
   if the journal asks for it.
 - Requires the **biography summary** of every author and co-author, if the journal asks for
@@ -53,6 +55,7 @@ fields, plus the gate at the end of the submission.
 
 | Setting | Default | What it does |
 | --- | --- | --- |
+| Family name (surname) | off | The family name is required whenever a contributor is saved, in the language of the submission. |
 | Affiliation (institution) | off | The affiliation is required whenever a contributor is saved — in the submission wizard and in *Edit contributor*. |
 | Biography summary | off | The same for the biography, in the language of the submission. |
 | Do not let the submission be completed while a contributor is missing one of them | off | The *Submit* button is refused, and the contributors panel of the review step says who is missing what. |
@@ -86,14 +89,17 @@ Three hooks, in the order the author meets them, and no core template is replace
 The exemption is read once, from the roles the acting user holds in that journal
 (`ROLE_ID_MANAGER`, `ROLE_ID_SUB_EDITOR`), and honoured everywhere the plugin acts.
 
-**The required mark.** The biography gets the application's own mark from `isRequired`.
-The affiliations field of PKP 3.5 draws its own heading and ignores what the form says —
-the prop is not declared by the component and ends up as an attribute on the element — so
-that one label is marked by a style of the plugin's own, in the same colour the application
-uses for every other required field. Since 1.0.1.0 both are marked.
+**The required mark.** Since 1.1.0.0 the mark is drawn on the label of each required field,
+in the language of the submission, by a style of the plugin's own and in the colour the
+application uses for every other required field. It is **not** done through the form's
+`isRequired`, and that is deliberate: a multilingual field marked that way is required by the
+**browser in every language of the journal**, which would stop a contributor from being saved
+with the family name or the biography given only in the language of the submission — and that
+is all this plugin asks for. (The affiliations field could not be marked that way either: the
+component of PKP 3.5 draws its own heading and does not even declare that property.)
 
-**One language, not all of them.** The institution is required in the language of the
-submission. The affiliation editor of the application offers the name in the other languages
+**One language, not all of them.** The family name, the biography and the institution are
+required in the language of the submission, and in no other. The affiliation editor of the application offers the name in the other languages
 of the journal as well, and says how many are filled ("1 of 3 languages"), but adding an
 institution with a single language works and is all this plugin asks for.
 
@@ -166,9 +172,9 @@ Distributed under the **GNU GPL v3**. See [`LICENSE`](LICENSE) and `docs/COPYING
 
 ## 🇧🇷 Português
 
-Plugin genérico para **OJS** e **OMP** que permite à revista exigir a **afiliação** e a
-**biografia** de todos os autores e coautores de uma submissão — cada uma separadamente — e
-impedir a conclusão da submissão enquanto faltar alguma. Quem administra a revista pode ficar
+Plugin genérico para **OJS** e **OMP** que permite à revista exigir o **sobrenome**, a
+**afiliação** e a **biografia** de todos os autores e coautores de uma submissão — cada um
+separadamente — e impedir a conclusão da submissão enquanto faltar algum. Quem administra a revista pode ficar
 de fora da exigência, de modo que o editor mantém autonomia para cadastrar e corrigir uma
 submissão ainda incompleta.
 
@@ -179,12 +185,13 @@ submissão ainda incompleta.
 
 | Aplicação | Branch | Versão do plugin |
 |-----------|--------|------------------|
-| OJS 3.5.x e OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(padrão)* | 1.0.1.0 |
+| OJS 3.5.x e OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(padrão)* | 1.1.0.0 |
 
 O mesmo pacote serve as duas aplicações.
 
 ### O que faz
 
+- Exige o **sobrenome** de todos os autores e coautores da submissão, se a revista pedir.
 - Exige a **afiliação** (instituição) de todos os autores e coautores da submissão, se a
   revista pedir.
 - Exige o **resumo da biografia** de todos, se a revista pedir — independente da afiliação.
@@ -211,6 +218,7 @@ em `plugins/generic/` (ficando `plugins/generic/requiredAuthorMetadata/`). Depoi
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| Sobrenome | desligada | O sobrenome passa a ser exigido sempre que um autor é gravado, no idioma da submissão. |
 | Afiliação (instituição) | desligada | A afiliação passa a ser exigida sempre que um autor é gravado — no assistente de submissão e em *Editar contribuidor*. |
 | Resumo da biografia | desligada | O mesmo para a biografia, no idioma da submissão. |
 | Impedir a conclusão da submissão enquanto faltar em algum autor | desligada | O botão *Enviar* é recusado e o painel de contribuidores da etapa de revisão diz de quem falta o quê. |
@@ -243,13 +251,17 @@ Três hooks, na ordem em que o autor os encontra, sem substituir nenhum template
 A isenção é lida uma vez, dos papéis que a pessoa tem naquela revista
 (`ROLE_ID_MANAGER`, `ROLE_ID_SUB_EDITOR`), e vale em todo lugar onde o plugin age.
 
-**O asterisco.** A biografia recebe a marca do próprio aplicativo pelo `isRequired`. O campo
-de afiliações do 3.5 desenha o próprio cabeçalho e ignora o que o formulário diz — o
-componente não declara essa propriedade, que acaba virando atributo no elemento —, então
-aquele rótulo é marcado por um estilo do plugin, na mesma cor que o aplicativo usa em todo
-campo obrigatório. Desde a 1.0.1.0 os dois aparecem marcados.
+**O asterisco.** Desde a 1.1.0.0 a marca é desenhada no rótulo de cada campo exigido, no
+idioma da submissão, por um estilo do próprio plugin e na cor que o aplicativo usa em todo
+campo obrigatório. **Não** é feita pelo `isRequired` do formulário, e isso é decisão de
+projeto: campo multilíngue marcado assim passa a ser exigido pelo **navegador em todos os
+idiomas da revista**, o que impediria gravar um contribuidor com o sobrenome ou a biografia
+preenchidos só no idioma da submissão — que é tudo o que este plugin cobra. (O campo de
+afiliações também não podia ser marcado assim: o componente do 3.5 desenha o próprio cabeçalho
+e nem declara essa propriedade.)
 
-**Um idioma, não todos.** A instituição é exigida no idioma da submissão. O editor de
+**Um idioma, não todos.** O sobrenome, a biografia e a instituição são exigidos no idioma da
+submissão, e em nenhum outro. O editor de
 afiliações do aplicativo oferece o nome nos outros idiomas da revista e informa quantos estão
 preenchidos ("1 de 3 idiomas"), mas incluir a instituição com um idioma só funciona — e é só
 isso que este plugin cobra.

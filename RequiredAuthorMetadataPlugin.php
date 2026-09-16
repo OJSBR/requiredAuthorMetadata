@@ -21,12 +21,17 @@
  *
  * Three hooks, in the order the author meets them:
  *
- * 1) Form::config::before    -> marks the fields that already exist in the
- *                               contributor form as required, so the form shows
- *                               the asterisk on the right label and checks them
- *                               before sending anything;
+ * 1) TemplateManager::display -> draws the required mark on the label of each
+ *                               field the journal requires, in the language of
+ *                               the submission. Marking the field through the
+ *                               form (`isRequired`) cannot be done: a
+ *                               multilingual field is then required by the
+ *                               browser in EVERY language of the journal, while
+ *                               only the language of the submission is required
+ *                               here — and the affiliations field of PKP 3.5
+ *                               ignores that property anyway;
  * 2) Author::validate        -> refuses to save a contributor without them.
- *                               This is the guarantee: the form is a courtesy,
+ *                               This is the guarantee: the mark is a courtesy,
  *                               and the REST endpoint is what stores the data;
  * 3) Submission::validateSubmit
  *                            -> refuses to complete the submission, naming every
@@ -42,7 +47,6 @@ namespace APP\plugins\generic\requiredAuthorMetadata;
 use APP\core\Application;
 use APP\facades\Repo;
 use APP\notification\NotificationManager;
-use PKP\components\forms\FormComponent;
 use PKP\components\forms\publication\ContributorForm;
 use PKP\core\JSONMessage;
 use PKP\linkAction\LinkAction;
@@ -60,6 +64,7 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
      * journal is left out of it.
      */
     public const DEFAULTS = [
+        'requireFamilyName' => false,
         'requireAffiliation' => false,
         'requireBiography' => false,
         'requireOnSubmit' => false,
@@ -81,8 +86,19 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
         'submission/wizard.tpl',
     ];
 
-    /** The fields this plugin can require, and the name each one has in the form. */
-    public const FIELDS = ['affiliation' => 'affiliations', 'biography' => 'biography'];
+    /**
+     * The fields this plugin can require, in the order the contributor form
+     * shows them: the setting each one is read from, and the name it has in the
+     * form and in the errors.
+     */
+    public const FIELDS = ['familyName' => 'familyName', 'affiliation' => 'affiliations', 'biography' => 'biography'];
+
+    /**
+     * Of those, the ones that are one text per language: they are required in
+     * the language of the submission, which is what the core does with every
+     * multilingual field it requires.
+     */
+    public const TEXT_FIELDS = ['familyName' => 'familyName', 'biography' => 'biography'];
 
     /**
      * Register the plugin and, where it is enabled, its hooks.
@@ -98,8 +114,7 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
             return $success;
         }
 
-        Hook::add('Form::config::before', $this->markRequiredFields(...));
-        Hook::add('TemplateManager::display', $this->markAffiliationLabel(...));
+        Hook::add('TemplateManager::display', $this->markRequiredLabels(...));
         Hook::add('Author::validate', $this->validateAuthor(...));
         Hook::add('Submission::validateSubmit', $this->validateSubmit(...));
 
@@ -152,45 +167,18 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
     }
 
     /**
-     * Hook Form::config::before — marks the fields the journal requires in the
-     * contributor form, so that the form itself shows and checks them.
+     * Hook TemplateManager::display — draws the required mark on the label of
+     * each field the journal requires, in the language of the submission.
      *
-     * The core fires this one with Hook::run(), which spreads its arguments: the
-     * form arrives as the second parameter, not inside an array. Declaring it
-     * otherwise is a TypeError that the core catches and writes to the error
-     * log, leaving the plugin silently inert.
-     */
-    public function markRequiredFields(string $hookName, mixed $form): bool
-    {
-        if (!$form instanceof ContributorForm) {
-            return Hook::CONTINUE;
-        }
-
-        $context = Application::get()->getRequest()->getContext();
-        $contextId = $context?->getId();
-        if ($this->isExempt($contextId)) {
-            return Hook::CONTINUE;
-        }
-
-        foreach (self::FIELDS as $setting => $fieldName) {
-            if ($this->getFlag($contextId, 'require' . ucfirst($setting))) {
-                self::requireField($form, $fieldName);
-            }
-        }
-
-        return Hook::CONTINUE;
-    }
-
-    /**
-     * Hook TemplateManager::display — the affiliations field of PKP 3.5 draws its
-     * own heading and ignores the `isRequired` of the form (the prop is not
-     * declared by the component and ends up as an attribute on the element), so
-     * the required mark of the application is put on that one label by a style
-     * of its own. Every other field keeps the mark the core gives it.
+     * Two reasons for doing it here instead of through the form: a multilingual
+     * field marked as required is required by the browser in every language (see
+     * markRequiredFields()), and the affiliations field of PKP 3.5 draws its own
+     * heading and ignores what the form says — the prop is not even declared by
+     * the component and ends up as an attribute on the element.
      *
      * @param array $args [$templateMgr, &$template]
      */
-    public function markAffiliationLabel(string $hookName, array $args): bool
+    public function markRequiredLabels(string $hookName, array $args): bool
     {
         $templateMgr = $args[0] ?? null;
         $template = $args[1] ?? '';
@@ -199,32 +187,64 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
         }
 
         $contextId = Application::get()->getRequest()->getContext()?->getId();
-        if (!$this->getFlag($contextId, 'requireAffiliation') || $this->isExempt($contextId)) {
+        if ($contextId === null || $this->isExempt($contextId)) {
             return Hook::CONTINUE;
         }
 
         // The colour is the one the application uses for every other required
         // field (.pkpFormFieldLabel__required).
-        $templateMgr->addStyleSheet(
-            'requiredAuthorMetadataAffiliation',
-            '#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel::after {'
-                . ' content: " *"; color: #d00a6c; }',
-            ['inline' => true, 'contexts' => ['backend']]
-        );
+        $mark = '::after { content: " *"; color: #d00a6c; }';
+        $rules = [];
+        if ($this->getFlag($contextId, 'requireAffiliation')) {
+            $rules[] = '#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel' . $mark;
+        }
+
+        $locale = $this->submissionLocaleOfRequest();
+        foreach (self::TEXT_FIELDS as $setting => $fieldName) {
+            if (!$this->getFlag($contextId, 'require' . ucfirst($setting))) {
+                continue;
+            }
+            $rules[] = $locale === null
+                // Without a submission to read the language from, the mark goes
+                // on the language being shown, which is the one being edited.
+                ? '.pkpFormGroup__locale--isVisible label[for^="contributor-' . $fieldName . '-control-"]' . $mark
+                : 'label[for="contributor-' . $fieldName . '-control-' . $locale . '"]' . $mark;
+        }
+
+        if ($rules) {
+            $templateMgr->addStyleSheet(
+                'requiredAuthorMetadataLabels',
+                implode(' ', $rules),
+                ['inline' => true, 'contexts' => ['backend']]
+            );
+        }
 
         return Hook::CONTINUE;
     }
 
     /**
-     * Marks one field of a form as required, leaving every other field alone.
+     * The language of the submission being edited, as the form writes it into
+     * the id of a field, or null where the page is not about one submission.
      */
-    private static function requireField(FormComponent $form, string $fieldName): void
+    private function submissionLocaleOfRequest(): ?string
     {
-        foreach ($form->fields as $field) {
-            if ($field->name === $fieldName) {
-                $field->isRequired = true;
+        $request = Application::get()->getRequest();
+        foreach (['id', 'submissionId', 'workflowSubmissionId'] as $name) {
+            $submissionId = (int) $request->getUserVar($name);
+            if (!$submissionId) {
+                continue;
+            }
+            $submission = Repo::submission()->get($submissionId);
+            $locale = $submission?->getData('locale');
+            if ($locale) {
+                // The form builds the id of the control with the locale, and
+                // anything that is not a letter, a digit or an underscore is
+                // replaced there (es@formal becomes es_formal).
+                return preg_replace('/[^A-Za-z0-9_]/', '_', $locale);
             }
         }
+
+        return null;
     }
 
     /**
@@ -259,14 +279,17 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
             }
         }
 
-        if ($this->getFlag($contextId, 'requireBiography') && $primaryLocale) {
-            $biography = array_key_exists('biography', $props)
-                ? $props['biography']
-                : ($author?->getData('biography') ?? []);
-            if (self::biographyMissing($biography, $primaryLocale)) {
+        foreach (self::TEXT_FIELDS as $setting => $fieldName) {
+            if (!$primaryLocale || !$this->getFlag($contextId, 'require' . ucfirst($setting))) {
+                continue;
+            }
+            $value = array_key_exists($fieldName, $props)
+                ? $props[$fieldName]
+                : ($author?->getData($fieldName) ?? []);
+            if (self::textMissing($value, $primaryLocale)) {
                 // A multilingual field carries its errors by locale, which is how
                 // the core formats them before this hook runs.
-                $errors['biography'][$primaryLocale] = [__('plugins.generic.requiredAuthorMetadata.error.biography.required')];
+                $errors[$fieldName][$primaryLocale] = [__('plugins.generic.requiredAuthorMetadata.error.' . $setting . '.required')];
             }
         }
 
@@ -296,14 +319,16 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
         }
 
         $locale = $submission->getData('locale');
-        $missing = ['affiliation' => [], 'biography' => []];
+        $missing = array_fill_keys(array_keys(self::FIELDS), []);
         foreach (Repo::author()->getCollector()->filterByPublicationIds([$publication->getId()])->getMany() as $author) {
             $name = $author->getFullName(false) ?: __('common.none');
             if ($this->getFlag($contextId, 'requireAffiliation') && self::affiliationsMissing($author->getAffiliations())) {
                 $missing['affiliation'][] = $name;
             }
-            if ($this->getFlag($contextId, 'requireBiography') && self::biographyMissing($author->getData('biography'), $locale)) {
-                $missing['biography'][] = $name;
+            foreach (self::TEXT_FIELDS as $setting => $fieldName) {
+                if ($this->getFlag($contextId, 'require' . ucfirst($setting)) && self::textMissing($author->getData($fieldName), $locale)) {
+                    $missing[$setting][] = $name;
+                }
             }
         }
 
@@ -367,15 +392,15 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
     }
 
     /**
-     * Whether a contributor is left without a biography in the language of the
-     * submission. What the editor typed is rich text, so an empty paragraph is
-     * as empty as an empty string.
+     * Whether a contributor is left without one of the texts in the language of
+     * the submission. The biography is rich text, so an empty paragraph is as
+     * empty as an empty string; a name of spaces is no name either.
      *
-     * @param array|string|null $biography
+     * @param array|string|null $text one text per language, or a single one
      */
-    public static function biographyMissing(mixed $biography, string $locale): bool
+    public static function textMissing(mixed $text, string $locale): bool
     {
-        $value = is_array($biography) ? ($biography[$locale] ?? '') : (string) $biography;
+        $value = is_array($text) ? ($text[$locale] ?? '') : (string) $text;
         $text = html_entity_decode(strip_tags((string) $value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         // A non-breaking space is what a rich text editor leaves behind.

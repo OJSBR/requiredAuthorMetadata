@@ -35,6 +35,7 @@ class LocaleFilesTest extends PKPTestCase
     public const PLACEHOLDERS = [
         'plugins.generic.requiredAuthorMetadata.error.affiliation.onSubmit' => ['{$names}'],
         'plugins.generic.requiredAuthorMetadata.error.biography.onSubmit' => ['{$names}'],
+        'plugins.generic.requiredAuthorMetadata.error.familyName.onSubmit' => ['{$names}'],
     ];
 
     protected function localeDir(): string
@@ -71,7 +72,7 @@ class LocaleFilesTest extends PKPTestCase
     {
         $files = $this->files();
         $master = array_keys($files[self::MASTER]->entries);
-        $this->assertCount(14, $master);
+        $this->assertCount(17, $master);
 
         foreach ($files as $locale => $file) {
             $this->assertSame($master, array_keys($file->entries), "Keys of {$locale} differ from " . self::MASTER . '.');
