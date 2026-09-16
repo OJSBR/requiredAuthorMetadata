@@ -2,10 +2,10 @@
 
 [![OJS](https://img.shields.io/badge/OJS-3.5-brightgreen)](https://pkp.sfu.ca/ojs/)
 [![OMP](https://img.shields.io/badge/OMP-3.5-brightgreen)](https://pkp.sfu.ca/omp/)
-[![Version](https://img.shields.io/badge/version-1.0.0.0-blue)](version.xml)
+[![Version](https://img.shields.io/badge/version-1.0.1.0-blue)](version.xml)
 [![License](https://img.shields.io/badge/license-GPL--3.0-lightgrey)](LICENSE)
 
-**⬇️ Install package:** [OJS / OMP 3.5](https://github.com/OJSBR/requiredAuthorMetadata/releases/download/1.0.0.0/requiredAuthorMetadata-1.0.0.0.tar.gz) — or browse all [Releases](../../releases).
+**⬇️ Install package:** [OJS / OMP 3.5](https://github.com/OJSBR/requiredAuthorMetadata/releases/download/1.0.1.0/requiredAuthorMetadata-1.0.1.0.tar.gz) — or browse all [Releases](../../releases).
 
 A generic plugin for **OJS** and **OMP** that lets a journal require the **affiliation** and
 the **biography** of every contributor of a submission — each one on its own — and refuse to
@@ -20,7 +20,7 @@ is still incomplete.
 
 | Application | Branch | Plugin release |
 |-------------|--------|----------------|
-| OJS 3.5.x and OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(default)* | 1.0.0.0 |
+| OJS 3.5.x and OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(default)* | 1.0.1.0 |
 
 The same package serves both applications.
 
@@ -84,7 +84,18 @@ Three hooks, in the order the author meets them, and no core template is replace
    submission.
 
 The exemption is read once, from the roles the acting user holds in that journal
-(`ROLE_ID_MANAGER`, `ROLE_ID_SUB_EDITOR`), and honoured by all three.
+(`ROLE_ID_MANAGER`, `ROLE_ID_SUB_EDITOR`), and honoured everywhere the plugin acts.
+
+**The required mark.** The biography gets the application's own mark from `isRequired`.
+The affiliations field of PKP 3.5 draws its own heading and ignores what the form says —
+the prop is not declared by the component and ends up as an attribute on the element — so
+that one label is marked by a style of the plugin's own, in the same colour the application
+uses for every other required field. Since 1.0.1.0 both are marked.
+
+**One language, not all of them.** The institution is required in the language of the
+submission. The affiliation editor of the application offers the name in the other languages
+of the journal as well, and says how many are filled ("1 of 3 languages"), but adding an
+institution with a single language works and is all this plugin asks for.
 
 **What counts as missing.** An affiliation entry with neither a name in any language nor an
 organization identifier (ROR) is not an affiliation; a contributor with no entry at all is
@@ -168,7 +179,7 @@ submissão ainda incompleta.
 
 | Aplicação | Branch | Versão do plugin |
 |-----------|--------|------------------|
-| OJS 3.5.x e OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(padrão)* | 1.0.0.0 |
+| OJS 3.5.x e OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(padrão)* | 1.0.1.0 |
 
 O mesmo pacote serve as duas aplicações.
 
@@ -230,7 +241,18 @@ Três hooks, na ordem em que o autor os encontra, sem substituir nenhum template
    submissão.
 
 A isenção é lida uma vez, dos papéis que a pessoa tem naquela revista
-(`ROLE_ID_MANAGER`, `ROLE_ID_SUB_EDITOR`), e vale para as três.
+(`ROLE_ID_MANAGER`, `ROLE_ID_SUB_EDITOR`), e vale em todo lugar onde o plugin age.
+
+**O asterisco.** A biografia recebe a marca do próprio aplicativo pelo `isRequired`. O campo
+de afiliações do 3.5 desenha o próprio cabeçalho e ignora o que o formulário diz — o
+componente não declara essa propriedade, que acaba virando atributo no elemento —, então
+aquele rótulo é marcado por um estilo do plugin, na mesma cor que o aplicativo usa em todo
+campo obrigatório. Desde a 1.0.1.0 os dois aparecem marcados.
+
+**Um idioma, não todos.** A instituição é exigida no idioma da submissão. O editor de
+afiliações do aplicativo oferece o nome nos outros idiomas da revista e informa quantos estão
+preenchidos ("1 de 3 idiomas"), mas incluir a instituição com um idioma só funciona — e é só
+isso que este plugin cobra.
 
 **O que conta como faltando.** Entrada de afiliação sem nome em nenhum idioma e sem
 identificador (ROR) não é afiliação; quem não tem entrada nenhuma está sem. A biografia está

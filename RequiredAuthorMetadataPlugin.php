@@ -50,6 +50,7 @@ use PKP\linkAction\request\AjaxModal;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\security\Role;
+use PKP\template\PKPTemplateManager;
 
 class RequiredAuthorMetadataPlugin extends GenericPlugin
 {
@@ -71,6 +72,15 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
      */
     public const EXEMPT_ROLES = [Role::ROLE_ID_MANAGER, Role::ROLE_ID_SUB_EDITOR];
 
+    /**
+     * Templates that mount the contributors panel, where the affiliation label
+     * has to carry the required mark.
+     */
+    public const TEMPLATES_WITH_CONTRIBUTORS = [
+        'dashboard/editors.tpl',
+        'submission/wizard.tpl',
+    ];
+
     /** The fields this plugin can require, and the name each one has in the form. */
     public const FIELDS = ['affiliation' => 'affiliations', 'biography' => 'biography'];
 
@@ -89,6 +99,7 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
         }
 
         Hook::add('Form::config::before', $this->markRequiredFields(...));
+        Hook::add('TemplateManager::display', $this->markAffiliationLabel(...));
         Hook::add('Author::validate', $this->validateAuthor(...));
         Hook::add('Submission::validateSubmit', $this->validateSubmit(...));
 
@@ -166,6 +177,40 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
                 self::requireField($form, $fieldName);
             }
         }
+
+        return Hook::CONTINUE;
+    }
+
+    /**
+     * Hook TemplateManager::display — the affiliations field of PKP 3.5 draws its
+     * own heading and ignores the `isRequired` of the form (the prop is not
+     * declared by the component and ends up as an attribute on the element), so
+     * the required mark of the application is put on that one label by a style
+     * of its own. Every other field keeps the mark the core gives it.
+     *
+     * @param array $args [$templateMgr, &$template]
+     */
+    public function markAffiliationLabel(string $hookName, array $args): bool
+    {
+        $templateMgr = $args[0] ?? null;
+        $template = $args[1] ?? '';
+        if (!$templateMgr instanceof PKPTemplateManager || !in_array($template, self::TEMPLATES_WITH_CONTRIBUTORS)) {
+            return Hook::CONTINUE;
+        }
+
+        $contextId = Application::get()->getRequest()->getContext()?->getId();
+        if (!$this->getFlag($contextId, 'requireAffiliation') || $this->isExempt($contextId)) {
+            return Hook::CONTINUE;
+        }
+
+        // The colour is the one the application uses for every other required
+        // field (.pkpFormFieldLabel__required).
+        $templateMgr->addStyleSheet(
+            'requiredAuthorMetadataAffiliation',
+            '#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel::after {'
+                . ' content: " *"; color: #d00a6c; }',
+            ['inline' => true, 'contexts' => ['backend']]
+        );
 
         return Hook::CONTINUE;
     }

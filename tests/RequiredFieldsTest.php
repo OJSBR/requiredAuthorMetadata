@@ -148,9 +148,10 @@ class RequiredFieldsTest extends PKPTestCase
         // And there is nobody to exempt outside a journal.
         $this->assertFalse($this->plugin(['editorsExempt' => true])->isExempt(null));
 
-        // The exemption is read once and applied to all three rules.
+        // Every place the plugin acts honours the exemption: the two marks in the
+        // form, the refusal to save and the gate at the end of the submission.
         $this->assertStringContainsString('$this->isExempt($contextId)', $source);
-        $this->assertSame(3, substr_count($source, '$this->isExempt('), 'each of the three rules has to honour it');
+        $this->assertSame(4, substr_count($source, '$this->isExempt('), 'each place the plugin acts has to honour it');
     }
 
     /**

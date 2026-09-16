@@ -29,6 +29,23 @@ describe('Required author metadata plugin', function() {
 	const AFFILIATION = 'Universidade Federal do Cypress';
 	const BIOGRAPHY = '<p>Pesquisadora do Cypress.</p>';
 
+	// A valid ORCID iD, check digit and all: another plugin of the journal may
+	// require one of every contributor, and each has to be different from the
+	// others of the same submission. This spec is about the affiliation and the
+	// biography, so it carries whatever else the journal may ask for.
+	let orcidSeed = Math.floor(Math.random() * 900000);
+	const anOrcid = () => {
+		const digits = ('000000021' + String(orcidSeed++).padStart(6, '0')).slice(0, 15);
+		let total = 0;
+		for (const digit of digits) {
+			total = (total + Number(digit)) * 2;
+		}
+		const result = (12 - (total % 11)) % 11;
+		const full = digits + (result === 10 ? 'X' : String(result));
+
+		return full.replace(/(.{4})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4');
+	};
+
 	// Contributors created here, deleted in after() even when an assertion fails.
 	const created = [];
 
@@ -226,9 +243,10 @@ describe('Required author metadata plugin', function() {
 	const contributor = (submission, userGroupId, extra) => Object.assign({
 		givenName: {[submission.locale]: 'Ram'},
 		familyName: {[submission.locale]: 'Cypress'},
-		email: 'ram.' + Date.now() + '@example.invalid',
+		email: 'ram.' + Date.now() + '.' + Math.floor(Math.random() * 100000) + '@example.invalid',
 		userGroupId,
 		includeInBrowse: true,
+		orcid: anOrcid(),
 	}, extra);
 
 	const keep = (base) => (answer) => {
@@ -327,6 +345,13 @@ describe('Required author metadata plugin', function() {
 				expect(marked('affiliations'), 'the affiliation is marked as required').to.eq(true);
 				expect(marked('biography'), 'the biography is marked as required').to.eq(true);
 				expect(marked('url'), 'a field the journal said nothing about is left alone').to.eq(false);
+
+				// The affiliations component of this version draws its own heading
+				// and ignores what the form says, so the required mark is put on
+				// that one label by a style of its own.
+				expect(response.body, 'the affiliation label carries the required mark')
+					.to.contain('#contributor-affiliations > .pkpFormField__heading > .pkpFormFieldLabel::after');
+				expect(response.body).to.contain('color: #d00a6c');
 			});
 		});
 	});

@@ -203,13 +203,27 @@ class RequiredOnSubmitTest extends PKPTestCase
         return Repo::submission()->get($submissionId);
     }
 
-    /** What the core answers the wizard about the contributors, as one string. */
-    private function contributorErrors(Submission $submission): string
+    /**
+     * What the core answers the wizard about the contributors.
+     *
+     * Every plugin writes under the same key, so the assertions below are made
+     * against the exact message this one produces — living beside what another
+     * plugin has to say is the point, and there is a test of its own for that.
+     *
+     * @return string[]
+     */
+    private function contributorErrors(Submission $submission): array
     {
         $context = Application::getContextDAO()->getById(self::CONTEXT_ID);
         $errors = Repo::submission()->validateSubmit($submission, $context);
 
-        return implode(' | ', (array) ($errors['contributors'] ?? []));
+        return array_values((array) ($errors['contributors'] ?? []));
+    }
+
+    /** The message this plugin produces for one field and one contributor. */
+    private function message(string $field, string $names): string
+    {
+        return __('plugins.generic.requiredAuthorMetadata.error.' . $field . '.onSubmit', ['names' => $names]);
     }
 
     public function testASubmissionIsRefusedWhileAContributorHasNoAffiliation(): void
@@ -220,9 +234,10 @@ class RequiredOnSubmitTest extends PKPTestCase
         $submission = $this->submissionAwaitingSubmit('Ana');
 
         $errors = $this->contributorErrors($submission);
+        $expected = $this->message('affiliation', 'Ana Contributor');
 
-        $this->assertStringContainsString('Ana', $errors, 'the contributor has to be named: ' . $errors);
-        $this->assertStringNotContainsString('##', $errors, 'the message has to be translated');
+        $this->assertContains($expected, $errors, 'the contributor has to be named: ' . implode(' | ', $errors));
+        $this->assertStringNotContainsString('##', $expected, 'the message has to be translated');
     }
 
     public function testEachFieldIsHeldAgainstTheSubmissionOnItsOwn(): void
@@ -235,11 +250,14 @@ class RequiredOnSubmitTest extends PKPTestCase
         $errors = $this->contributorErrors($submission);
 
         // Two rules, two messages: one does not swallow the other.
-        $this->assertSame(2, substr_count($errors, 'Bruno'), 'both fields have to be reported: ' . $errors);
+        $this->assertContains($this->message('affiliation', 'Bruno Contributor'), $errors);
+        $this->assertContains($this->message('biography', 'Bruno Contributor'), $errors);
 
         // With only the biography required, only that one is left.
         $this->set('requireAffiliation', false);
-        $this->assertSame(1, substr_count($this->contributorErrors($submission), 'Bruno'));
+        $left = $this->contributorErrors($submission);
+        $this->assertNotContains($this->message('affiliation', 'Bruno Contributor'), $left);
+        $this->assertContains($this->message('biography', 'Bruno Contributor'), $left);
     }
 
     public function testNothingIsRequiredWhileTheJournalDidNotAskForIt(): void
@@ -249,11 +267,9 @@ class RequiredOnSubmitTest extends PKPTestCase
         $this->set('requireOnSubmit', false);
         $submission = $this->submissionAwaitingSubmit('Carla');
 
-        $this->assertStringNotContainsString(
-            'Carla',
-            $this->contributorErrors($submission),
-            'the gate only closes where the journal closed it'
-        );
+        $errors = $this->contributorErrors($submission);
+        $this->assertNotContains($this->message('affiliation', 'Carla Contributor'), $errors, 'the gate only closes where the journal closed it');
+        $this->assertNotContains($this->message('biography', 'Carla Contributor'), $errors);
     }
 
     public function testTheEditorKeepsTheAutonomyToCompleteIt(): void
@@ -273,21 +289,18 @@ class RequiredOnSubmitTest extends PKPTestCase
         $author = Repo::user()->getCollector()->filterByContextIds([self::CONTEXT_ID])->filterByRoleIds([Role::ROLE_ID_AUTHOR])->getMany()
             ->first(fn ($user) => !$user->hasRole(RequiredAuthorMetadataPlugin::EXEMPT_ROLES, self::CONTEXT_ID));
 
+        $expected = $this->message('affiliation', 'Dora Contributor');
         if ($author) {
             Registry::set('user', $author);
-            $this->assertStringContainsString('Dora', $this->contributorErrors($submission), 'an author is held to the rule');
+            $this->assertContains($expected, $this->contributorErrors($submission), 'an author is held to the rule');
         }
 
         Registry::set('user', $manager);
-        $this->assertStringNotContainsString(
-            'Dora',
-            $this->contributorErrors($submission),
-            'a journal manager completes the submission anyway'
-        );
+        $this->assertNotContains($expected, $this->contributorErrors($submission), 'a journal manager completes the submission anyway');
 
         // Unless the journal took that autonomy away.
         $this->set('editorsExempt', false);
-        $this->assertStringContainsString('Dora', $this->contributorErrors($submission));
+        $this->assertContains($expected, $this->contributorErrors($submission));
     }
 
     public function testItLivesBesideTheOrcidPluginInsteadOfReplacingIt(): void
@@ -304,12 +317,16 @@ class RequiredOnSubmitTest extends PKPTestCase
             $this->set('requireOnSubmit', true);
             $submission = $this->submissionAwaitingSubmit('Elena');
 
-            $errors = $this->contributorErrors($submission);
+            $everything = implode(' | ', $this->contributorErrors($submission));
 
             // Both plugins write under the same key of the core: the author has
             // to see both reasons, not whichever ran last.
-            $this->assertStringContainsString('ORCID', $errors, 'the iD is still asked for: ' . $errors);
-            $this->assertStringContainsString('Elena', $errors, 'and so is the affiliation: ' . $errors);
+            $this->assertStringContainsString('ORCID', $everything, 'the iD is still asked for: ' . $everything);
+            $this->assertStringContainsString(
+                $this->message('affiliation', 'Elena Contributor'),
+                $everything,
+                'and so is the affiliation: ' . $everything
+            );
         } finally {
             $orcid->updateSetting(self::CONTEXT_ID, 'requireOnSubmit', $wasRequired === null ? 0 : $wasRequired, 'bool');
         }
