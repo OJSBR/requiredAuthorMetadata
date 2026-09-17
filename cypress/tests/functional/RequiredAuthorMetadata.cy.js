@@ -337,6 +337,17 @@ describe('Required author metadata plugin', function() {
 					biography: {[submission.locale]: BIOGRAPHY},
 				})).then(keep(base)).then((accepted) => {
 					notHeldHere(accepted, 'with both of them there, nothing of this plugin is held against it');
+					if (accepted.status !== 200) {
+						return;
+					}
+
+					// And what was sent is what was stored: a plugin that guards a
+					// field must not be the reason the field is lost.
+					return api(base + '/contributors/' + accepted.body.id).then((stored) => {
+						expect(stored.affiliations[0].name[submission.locale], 'the affiliation was stored').to.eq(AFFILIATION);
+						expect(stored.biography[submission.locale], 'the biography was stored').to.contain(BIOGRAPHY.slice(0, 20));
+						expect(stored.familyName[submission.locale], 'the family name was stored').to.match(/\S/);
+					});
 				});
 			}));
 		});
@@ -399,21 +410,32 @@ describe('Required author metadata plugin', function() {
 				expect(without.length, 'a contributor with no affiliation, to be held against the submission').to.be.greaterThan(0);
 				const name = without[0].givenName[submission.locale] || without[0].familyName[submission.locale];
 
+				// Another plugin of the journal may hold the same submission for a
+				// reason of its own, and its message names the same contributor:
+				// what is compared is the set of messages, with the rule and
+				// without it, never the mere presence of the name.
+				const messagesOf = (answer) => ((answer.body && answer.body.contributors) || []).map(String);
+				let closed = [];
+
 				// What the wizard asks the server when the author presses Submit.
 				send(submitUrl, 'PUT', {_validateOnly: true}).then((answer) => {
 					expect(answer.status, JSON.stringify(answer.body)).to.eq(400);
-					const held = JSON.stringify(answer.body.contributors || []);
+					closed = messagesOf(answer);
 					// The core's own key: the message shows in the contributors panel.
-					expect(held, 'nothing was held against the contributors').to.not.eq('[]');
-					expect(held).to.contain(name);
-					expect(held).to.not.contain('##');
+					expect(closed, 'nothing was held against the contributors').to.not.be.empty;
+					expect(closed.filter((message) => message.includes(name)), 'the contributor is named').to.not.be.empty;
+					expect(JSON.stringify(closed)).to.not.contain('##');
 				});
 
-				// And with the journal no longer asking for it, nothing is held.
+				// And with the journal no longer asking for it, this gate opens:
+				// a message is gone and no new one appeared.
 				cy.then(() => saveSettings({requireAffiliation: true}));
 				send(submitUrl, 'PUT', {_validateOnly: true}).then((answer) => {
-					const held = JSON.stringify((answer.body && answer.body.contributors) || []);
-					expect(held, 'the gate only closes where the journal closed it').to.not.contain(name);
+					const open = messagesOf(answer);
+					expect(open.length, 'the gate this journal closed is the one that opened').to.be.lessThan(closed.length);
+					open.forEach((message) => {
+						expect(closed, 'nothing new was held: ' + message).to.include(message);
+					});
 				});
 			});
 		});
