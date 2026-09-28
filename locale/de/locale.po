@@ -47,6 +47,9 @@ msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die Institution
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die biografische Notiz fehlt bei: {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "Die Einreichung kann nicht abgeschlossen werden, solange die Erklärung zu Interessenkonflikten fehlt bei: {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Nachname"
 

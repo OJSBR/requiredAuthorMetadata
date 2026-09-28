@@ -47,6 +47,9 @@ msgstr "La soumission ne peut pas être achevée tant que l'affiliation manque p
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "La soumission ne peut pas être achevée tant que la notice biographique manque pour : {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "La soumission ne peut pas être achevée tant que la déclaration de conflit d'intérêts manque pour : {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Nom de famille"
 

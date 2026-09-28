@@ -61,6 +61,10 @@ msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "The submission cannot be completed while the biography of these contributors is missing: {$names}."
 
 #, fuzzy
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "The submission cannot be completed while the competing interests statement of these contributors is missing: {$names}."
+
+#, fuzzy
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Family name (surname)"
 

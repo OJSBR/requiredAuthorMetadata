@@ -43,6 +43,8 @@ class RequiredOnSubmitTest extends PKPTestCase
     private array $createdSubmissions = [];
     /** The settings as they were before the test, to be put back. */
     private array $savedSettings = [];
+    /** The journal's own setting for the competing interests, as it was. */
+    private ?bool $savedCompetingInterests = null;
     private ?RequiredAuthorMetadataPlugin $plugin = null;
 
     /**
@@ -74,6 +76,10 @@ class RequiredOnSubmitTest extends PKPTestCase
         Registry::set('user', $nobody);
         foreach ($this->savedSettings as $name => $value) {
             $this->plugin?->updateSetting(self::CONTEXT_ID, $name, $value === null ? 0 : $value, 'bool');
+        }
+        if ($this->savedCompetingInterests !== null) {
+            $this->requireCompetingInterests($this->savedCompetingInterests);
+            $this->savedCompetingInterests = null;
         }
         foreach ($this->createdSubmissions as $id) {
             if ($submission = Repo::submission()->get($id)) {
@@ -150,6 +156,33 @@ class RequiredOnSubmitTest extends PKPTestCase
             $this->savedSettings[$name] = $this->plugin->getSetting(self::CONTEXT_ID, $name);
         }
         $this->plugin->updateSetting(self::CONTEXT_ID, $name, $value ? 1 : 0, 'bool');
+    }
+
+    /**
+     * Switches the journal's own requirement of a competing interests statement
+     * (Settings > Workflow > Review), keeping what it was to put it back in
+     * tearDown(). It is a setting of the core, not of this plugin.
+     */
+    private function requireCompetingInterests(bool $required): void
+    {
+        $contextDao = Application::getContextDAO();
+        $context = $contextDao->getById(self::CONTEXT_ID);
+        if ($this->savedCompetingInterests === null) {
+            $this->savedCompetingInterests = (bool) $context->getData('requireAuthorCompetingInterests');
+        }
+        $context->setData('requireAuthorCompetingInterests', $required);
+        $contextDao->updateObject($context);
+    }
+
+    /** Gives the only contributor of the submission a competing interests statement. */
+    private function declareCompetingInterests(Submission $submission, array $statement): Submission
+    {
+        $author = Repo::author()->getCollector()
+            ->filterByPublicationIds([$submission->getCurrentPublication()->getId()])
+            ->getMany()->first();
+        Repo::author()->edit($author, ['competingInterests' => $statement]);
+
+        return Repo::submission()->get($submission->getId());
     }
 
     /** The first section of the context, or none where the application allows it. */
@@ -350,5 +383,77 @@ class RequiredOnSubmitTest extends PKPTestCase
         } finally {
             $orcid->updateSetting(self::CONTEXT_ID, 'requireOnSubmit', $wasRequired === null ? 0 : $wasRequired, 'bool');
         }
+    }
+
+    public function testASubmissionIsRefusedWhileAContributorHasNoCompetingInterestsStatement(): void
+    {
+        // The core asks for the statement only when a contributor is saved; the
+        // contributor made here, like the submitter made from the user profile,
+        // never went through the form.
+        $this->requireCompetingInterests(true);
+        $this->set('requireFamilyName', false);
+        $this->set('requireAffiliation', false);
+        $this->set('requireBiography', false);
+        $this->set('requireOnSubmit', true);
+        $submission = $this->submissionAwaitingSubmit('Helena');
+
+        $expected = $this->message('competingInterests', 'Helena Contributor');
+        $this->assertContains($expected, $this->contributorErrors($submission), 'the contributor has to be named');
+        $this->assertStringNotContainsString('##', $expected, 'the message has to be translated');
+
+        // Declared in the language of the submission: nothing left to say.
+        $declared = $this->declareCompetingInterests($submission, ['en' => '<p>None to declare.</p>']);
+        $this->assertNotContains($expected, $this->contributorErrors($declared));
+    }
+
+    public function testTheStatementCountsOnlyInTheLanguageOfTheSubmissionAndNotEmpty(): void
+    {
+        $this->requireCompetingInterests(true);
+        $this->set('requireOnSubmit', true);
+        $submission = $this->submissionAwaitingSubmit('Igor');
+        $expected = $this->message('competingInterests', 'Igor Contributor');
+
+        // In another language only: the submission is in English.
+        $otherLanguage = $this->declareCompetingInterests($submission, ['pt_BR' => '<p>Nenhum.</p>']);
+        $this->assertContains($expected, $this->contributorErrors($otherLanguage), 'another language does not stand in for the one of the submission');
+
+        // What a rich text editor leaves behind when it is emptied.
+        $emptied = $this->declareCompetingInterests($submission, ['en' => '<p>&nbsp;</p>']);
+        $this->assertContains($expected, $this->contributorErrors($emptied), 'an empty paragraph is not a statement');
+    }
+
+    public function testTheStatementIsOnlyHeldWhereTheJournalAndTheGateAskForIt(): void
+    {
+        $this->set('requireOnSubmit', true);
+        $submission = $this->submissionAwaitingSubmit('Julia');
+        $expected = $this->message('competingInterests', 'Julia Contributor');
+
+        // The journal does not require the statement: the plugin does not either.
+        $this->requireCompetingInterests(false);
+        $this->assertNotContains($expected, $this->contributorErrors($submission), 'the plugin follows the core setting, it adds none of its own');
+
+        // The journal requires it, but the gate at the end is open.
+        $this->requireCompetingInterests(true);
+        $this->set('requireOnSubmit', false);
+        $this->assertNotContains($expected, $this->contributorErrors($submission), 'without the gate, only the form asks for it');
+    }
+
+    public function testTheEditorKeepsTheAutonomyOverTheStatementToo(): void
+    {
+        $this->requireCompetingInterests(true);
+        $this->set('requireOnSubmit', true);
+        $this->set('editorsExempt', true);
+        $submission = $this->submissionAwaitingSubmit('Karina');
+
+        $manager = Repo::user()->getCollector()->filterByContextIds([self::CONTEXT_ID])->filterByRoleIds([Role::ROLE_ID_MANAGER])->limit(1)->getMany()->first();
+        if (!$manager) {
+            $this->markTestSkipped('this context has no journal manager to act as');
+        }
+        Registry::set('user', $manager);
+        $this->assertNotContains(
+            $this->message('competingInterests', 'Karina Contributor'),
+            $this->contributorErrors($submission),
+            'a journal manager completes the submission anyway'
+        );
     }
 }

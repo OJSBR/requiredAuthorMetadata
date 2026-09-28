@@ -47,6 +47,9 @@ msgstr "De inzending kan niet worden afgerond zolang de affiliatie ontbreekt bij
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "De inzending kan niet worden afgerond zolang de biografie ontbreekt bij: {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "De inzending kan niet worden afgerond zolang de verklaring over belangenconflicten ontbreekt bij: {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Achternaam"
 
