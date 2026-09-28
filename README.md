@@ -2,10 +2,10 @@
 
 [![OJS](https://img.shields.io/badge/OJS-3.5-brightgreen)](https://pkp.sfu.ca/ojs/)
 [![OMP](https://img.shields.io/badge/OMP-3.5-brightgreen)](https://pkp.sfu.ca/omp/)
-[![Version](https://img.shields.io/badge/version-1.1.0.0-blue)](version.xml)
+[![Version](https://img.shields.io/badge/version-1.2.0.0-blue)](version.xml)
 [![License](https://img.shields.io/badge/license-GPL--3.0-lightgrey)](LICENSE)
 
-**⬇️ Install package:** [OJS / OMP 3.5](https://github.com/OJSBR/requiredAuthorMetadata/releases/download/1.1.0.0/requiredAuthorMetadata-1.1.0.0.tar.gz) — or browse all [Releases](../../releases).
+**⬇️ Install package:** [OJS / OMP 3.5](https://github.com/OJSBR/requiredAuthorMetadata/releases/download/1.2.0.0/requiredAuthorMetadata-1.2.0.0.tar.gz) — or browse all [Releases](../../releases).
 
 A generic plugin for **OJS** and **OMP** that lets a journal require the **family name**, the
 **affiliation** and the **biography** of every contributor of a submission — each one on its
@@ -20,7 +20,7 @@ is still incomplete.
 
 | Application | Branch | Plugin release |
 |-------------|--------|----------------|
-| OJS 3.5.x and OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(default)* | 1.1.0.0 |
+| OJS 3.5.x and OMP 3.5.x | [`stable-3_5_0`](../../tree/stable-3_5_0) *(default)* | 1.2.0.0 |
 
 The same package serves both applications.
 
@@ -34,6 +34,13 @@ The same package serves both applications.
   it — independently of the affiliation.
 - Optionally **stops the submission from being completed** while any contributor is missing
   one of them, naming who is missing what, where the wizard shows its own errors.
+- With that same option on, also **stops the submission from being completed while a
+  contributor has no competing interests statement**, whenever the journal requires it
+  (**Settings → Workflow → Review → Require authors to file a Competing Interest statement**).
+  The core only checks that statement when a contributor is saved; the submitter's own
+  record is created from the user profile and may never be opened, so without this check
+  it could reach the end of the wizard without one. No new setting: it follows the core
+  one.
 - Optionally **leaves journal managers and section editors out of all of it**, so the
   editorial side keeps its autonomy. This one is on by default.
 - Changes nothing until a box is ticked: a journal that enables the plugin and chooses

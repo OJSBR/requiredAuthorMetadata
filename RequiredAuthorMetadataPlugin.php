@@ -35,7 +35,14 @@
  *                               and the REST endpoint is what stores the data;
  * 3) Submission::validateSubmit
  *                            -> refuses to complete the submission, naming every
- *                               contributor who is missing each field.
+ *                               contributor who is missing each field. Where the
+ *                               journal requires the competing interests statement
+ *                               (the core setting above), it is checked here too:
+ *                               the core only asks for it when a contributor is
+ *                               saved, so a contributor created without ever
+ *                               opening the form — the submitter, whose record is
+ *                               built from the user profile — would otherwise get
+ *                               through without one.
  *
  * Whoever runs the journal can be left out of all three (`editorsExempt`, on by
  * default): a manager or a section editor keeps the autonomy to record and to
@@ -99,6 +106,14 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
      * multilingual field it requires.
      */
     public const TEXT_FIELDS = ['familyName' => 'familyName', 'biography' => 'biography'];
+
+    /**
+     * The competing interests statement is required by the core, through the
+     * journal setting `requireAuthorCompetingInterests`, and only when a
+     * contributor is saved. The plugin adds no setting of its own for it: it only
+     * closes the gap at the end of the submission, while `requireOnSubmit` is on.
+     */
+    public const COMPETING_INTERESTS = 'competingInterests';
 
     /**
      * Register the plugin and, where it is enabled, its hooks.
@@ -319,7 +334,8 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
         }
 
         $locale = $submission->getData('locale');
-        $missing = array_fill_keys(array_keys(self::FIELDS), []);
+        $requireCompetingInterests = (bool) $context->getData('requireAuthorCompetingInterests');
+        $missing = array_fill_keys([...array_keys(self::FIELDS), self::COMPETING_INTERESTS], []);
         foreach (Repo::author()->getCollector()->filterByPublicationIds([$publication->getId()])->getMany() as $author) {
             $name = $author->getFullName(false) ?: __('common.none');
             if ($this->getFlag($contextId, 'requireAffiliation') && self::affiliationsMissing($author->getAffiliations())) {
@@ -329,6 +345,11 @@ class RequiredAuthorMetadataPlugin extends GenericPlugin
                 if ($this->getFlag($contextId, 'require' . ucfirst($setting)) && self::textMissing($author->getData($fieldName), $locale)) {
                     $missing[$setting][] = $name;
                 }
+            }
+            // Same test the core applies on save: the statement in the language of
+            // the submission, where an empty paragraph counts as nothing.
+            if ($requireCompetingInterests && self::textMissing($author->getData(self::COMPETING_INTERESTS), $locale)) {
+                $missing[self::COMPETING_INTERESTS][] = $name;
             }
         }
 

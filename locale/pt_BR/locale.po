@@ -47,6 +47,9 @@ msgstr "A submissão não pode ser concluída enquanto faltar a afiliação de: 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "A submissão não pode ser concluída enquanto faltar a biografia de: {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "A submissão não pode ser concluída enquanto faltar a declaração de conflito de interesses de: {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Sobrenome"
 

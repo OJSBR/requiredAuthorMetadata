@@ -47,6 +47,9 @@ msgstr "La proposta non può essere completata finché manca l'affiliazione di: 
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "La proposta non può essere completata finché manca la nota biografica di: {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "La proposta non può essere completata finché manca la dichiarazione di conflitto di interessi di: {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Cognome"
 

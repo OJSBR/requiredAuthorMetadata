@@ -47,6 +47,9 @@ msgstr "El envío no puede completarse mientras falte la afiliación de: {$names
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "El envío no puede completarse mientras falte la biografía de: {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "El envío no puede completarse mientras falte la declaración de conflicto de intereses de: {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Apellidos"
 

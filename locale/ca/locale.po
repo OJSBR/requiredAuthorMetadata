@@ -47,6 +47,9 @@ msgstr "La tramesa no es pot completar mentre falti l'afiliació de: {$names}."
 msgid "plugins.generic.requiredAuthorMetadata.error.biography.onSubmit"
 msgstr "La tramesa no es pot completar mentre falti la biografia de: {$names}."
 
+msgid "plugins.generic.requiredAuthorMetadata.error.competingInterests.onSubmit"
+msgstr "La tramesa no es pot completar mentre falti la declaració de conflicte d'interessos de: {$names}."
+
 msgid "plugins.generic.requiredAuthorMetadata.settings.requireFamilyName"
 msgstr "Cognoms"
 
